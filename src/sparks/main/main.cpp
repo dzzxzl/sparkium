@@ -10,8 +10,10 @@ ABSL_FLAG(bool,
           validation_layer,
           grassland::vulkan::kDefaultEnableValidationLayers,
           "Enable Vulkan validation layer");
-ABSL_FLAG(uint32_t, width, 1920, "Window width");
-ABSL_FLAG(uint32_t, height, 1080, "Window height");
+// ABSL_FLAG(uint32_t, width, 1920, "Window width");
+// ABSL_FLAG(uint32_t, height, 1080, "Window height");
+ABSL_FLAG(uint32_t, width, 854, "Window width");
+ABSL_FLAG(uint32_t, height, 480, "Window height");
 ABSL_FLAG(bool, vkrt, false, "Use Vulkan Ray Tracing pipeline");
 ABSL_FLAG(int, device, -1, "Select physical device manually");
 

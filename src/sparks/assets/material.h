@@ -11,7 +11,8 @@ enum MaterialType : int {
   MATERIAL_TYPE_TRANSMISSIVE = 2,
   MATERIAL_TYPE_PRINCIPLED = 3,
   MATERIAL_TYPE_EMISSION = 4,
-  MATERIAL_TYPE_NODE = 5
+  MATERIAL_TYPE_NODE = 5,
+  MATERIAL_TYPE_GLASS = 6
 };
 
 class Scene;
@@ -24,6 +25,7 @@ struct Material {
   float alpha{1.0f};
   MaterialType material_type{MATERIAL_TYPE_LAMBERTIAN};
   float reserve[2]{};
+  float IOR{1.5f};
   Material() = default;
   explicit Material(const glm::vec3 &albedo);
   Material(Scene *scene, const tinyxml2::XMLElement *material_element);

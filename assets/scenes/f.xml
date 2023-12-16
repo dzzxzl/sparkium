@@ -2,7 +2,7 @@
 <scene>
 	<camera>
 		<transform type="lookat">
-			<eye value="2.0 1.0 3.0"/>
+			<eye value="12.0 11.0 6.0"/>
 			<center value="0.0 0.0 0.0"/>
 			<up value="0.0 1.0 0.0"/>
 		</transform>
@@ -10,12 +10,33 @@
 
 	<envmap type="file" value="../../textures/envmap_clouds_4k.hdr"/>
 
-	<model type="obj">
-		<filename value="../../meshes/1.obj"/>
+	<model type="obj" name='fuzi'>
+		<filename value="../../meshes/2-1.obj"/>
+		
+		<transform type="world">
+			<scale value="1.0 1.0 1.0"/>
+			<translation value="0.0 0.0 0.0"/>
+			<rotation value="0.0 0.0 0.0"/>
+		</transform>
 
 		<material type="lambertian">
 			<albedo value="0.8 0.8 0.8"/>
 		</material>
+	</model>
+
+	<model type="obj" name="glass">
+		<filename value="../../meshes/2-2.obj"/>
+
+		<transform type="world">
+			<scale value="1.0 1.0 1.0"/>
+			<translation value="0.0 0.0 0.0"/>
+			<rotation value="0.0 0.0 0.0"/>
+		</transform>
+
+		<material type="glass">
+			<albedo value="0.8 0.8 0.8"/>
+		</material>
+	
 	</model>
 
 </scene>

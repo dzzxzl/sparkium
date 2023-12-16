@@ -30,6 +30,7 @@ void main() {
            max(dot(global_object.envmap_light_direction, normal), 0.0) * 2.0;
   if (material.material_type == MATERIAL_TYPE_EMISSION) {
     color_out = vec4(material.emission_strength * material.emission, 1.0);
+    color_out = vec4(1.0, 0.0, 0.0, 1.0);
   } else {
     color_out =
         vec4(material.albedo_color * light, 1.0) *
