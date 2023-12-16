@@ -16,7 +16,6 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
                                 int sample) const {
   glm::vec3 throughput{1.0f};
   glm::vec3 radiance{0.0f};
-  return radiance;
   HitRecord hit_record;
   const int max_bounce = render_settings_->num_bounces;
   std::mt19937 rd(sample ^ x ^ y);
@@ -29,14 +28,23 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         radiance += throughput * material.emission * material.emission_strength;
         break;
       } 
-      // else if (material.material_type == MATERIAL_TYPE_GLASS) {
-      //   // GLASS
-      //   return glm::vec3(1.0,0.0,0.0);
-      //   direction = glm::refract(direction, hit_record.normal, 1.0f / material.IOR);
-      //   throughput *= material.albedo_color;
-      //   origin = hit_record.position;
-      //   throughput *= std::max(glm::dot(direction, hit_record.normal), 0.0f) * 2.0f;
-      // }
+      else if (material.material_type == MATERIAL_TYPE_GLASS) {
+        // GLASS
+        bool in_glass = glm::dot(direction, hit_record.normal) > 0.0f;
+        if(in_glass) {
+          direction = glm::refract(direction, -hit_record.normal, material.IOR);
+          throughput *= material.albedo_color;
+          origin = hit_record.position;
+          // throughput *= std::max(glm::dot(direction, hit_record.normal), 0.0f) * 2.0f;
+          in_glass = false;
+        } else {
+          direction = glm::refract(direction, hit_record.normal, 1.0f / material.IOR);
+          throughput *= material.albedo_color;
+          origin = hit_record.position;
+          // throughput *= std::max(glm::dot(direction, -hit_record.normal), 0.0f) * 2.0f;
+          in_glass = true;
+        }
+      }
       else {
         throughput *=
             material.albedo_color *
