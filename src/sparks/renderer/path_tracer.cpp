@@ -50,17 +50,48 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       } else if (material.material_type == MATERIAL_TYPE_SPECULAR) {
         origin = hit_record.position;
         direction = glm::reflect(direction, -hit_record.normal);
+      } else if (material.material_type == MATERIAL_TYPE_NODE) {
+        origin = hit_record.position;
+        for(int eme_iter=0; eme_iter < scene_->GetEntityCount(); eme_iter++){
+          auto &eme_material = scene_->GetEntity(eme_iter).GetMaterial();
+          if(eme_material.material_type == MATERIAL_TYPE_EMISSION){
+            HitRecord eme_hit_record;
+            auto eme_origin = scene_->GetEntity(eme_iter).getCenter();
+            auto crossSection = scene_->GetEntity(eme_iter).getCrossSection();
+            auto eme_direction = glm::normalize(eme_origin - origin);
+            auto distance = glm::distance(eme_origin, origin);
+            auto eme_t = scene_->TraceRay(origin, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+            if(eme_t > 0.0f){
+              // blocked - yes
+              if( eme_hit_record.hit_entity_id != eme_iter){
+                continue;
+              }
+              // not blocked 
+              radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
+                * crossSection / (distance * distance)
+                * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_NODE, nullptr);
+            }
+          }
+        }
+        break;
+        auto old_direction = direction;
+        direction = SampleHemisphere(-hit_record.normal);
+        throughput *= BSDF(-old_direction, -hit_record.normal, -direction, 
+         MATERIAL_TYPE_NODE, nullptr) * 2.0f / GINTAMA_P_RR;
+         if(genRanFloat() > GINTAMA_P_RR){
+           break;
+         }
       }
       else if (material.material_type == MATERIAL_TYPE_LAMBERTIAN) {
-        glm::vec3 material_mutiplier = material.albedo_color *
+        glm::vec3 material_multiplier = material.albedo_color *
             glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(
                 hit_record.tex_coord)};
         origin = hit_record.position;
         // environment light
         // auto direction_env = scene_->GetEnvmapLightDirection();
-        // radiance += throughput * material_mutiplier * scene_->GetEnvmapMinorColor();
+        // radiance += throughput * material_multiplier * scene_->GetEnvmapMinorColor();
         // if (scene_->TraceRay(origin, direction_env, 1e-3f, 1e4f, nullptr) < 0.0f) {
-        //   radiance += throughput * material_mutiplier * 
+        //   radiance += throughput * material_multiplier * 
         //     BSDF(direction, hit_record.normal, direction_env, MATERIAL_TYPE_LAMBERTIAN) 
         //     * scene_->GetEnvmapMajorColor();
         // }
@@ -83,14 +114,14 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
               radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
                 * crossSection / (distance * distance)
                 * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
-                * material_mutiplier;
+                * material_multiplier;
             }
           }
         }
         break;
         auto old_direction = direction;
         direction = SampleHemisphere(-hit_record.normal);
-        throughput *= material_mutiplier * BSDF(-old_direction, -hit_record.normal, -direction, 
+        throughput *= material_multiplier * BSDF(-old_direction, -hit_record.normal, -direction, 
          MATERIAL_TYPE_LAMBERTIAN) * 2.0f / GINTAMA_P_RR;
          if(genRanFloat() > GINTAMA_P_RR){
            break;
@@ -154,13 +185,16 @@ float PathTracer::genRanFloat() const
 
 
 
-float PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type) const
+float PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type, Node* endShaderNode=nullptr) const
 {
   if( material_type == MATERIAL_TYPE_LAMBERTIAN ) {
     return std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f);
   } 
   else if (material_type == MATERIAL_TYPE_EMISSION) {
     return std::max( glm::dot(reflection, normal), 0.0f);
+  }
+  else if (material_type == MATERIAL_TYPE_NODE) {
+    return endShaderNode->process();
   }
   else {
     return 1.0f;

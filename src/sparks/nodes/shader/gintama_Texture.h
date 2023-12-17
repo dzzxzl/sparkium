@@ -3,21 +3,25 @@
 #include "vector"
 #include "sparks/nodes/shader/gintama_Layout.h"
 #include "glm/glm.hpp"
+#include "cmath"
 
 namespace sparks {
 
 class Checker: public Node {
  public:
   Checker();
-  ~Checker() override = default;
-  void Update() override;
-  void Draw() override;
-  void DrawImGui() override;
-  glm::vec3 color1_{0.0f, 0.0f, 0.0f}; // in slot 0
-  glm::vec3 color2_{1.0f, 1.0f, 1.0f}; // in slot 1
-  float scale_{10.0f}; // in slot 2
- private:
-  Prober prober_; // built in
+  ~Checker() override;
+  void process() override;
+  // void Update() override;
+  // void Draw() override;
+  // void DrawImGui() override;
+  // in slot 0 color1_
+  // in slot 1 color2_
+  // in slot 2 scale_
+  // out slot 0 color_
+  // out slot 1 gradient_
+  float u_{0.0f};
+  float v_{0.0f};
 };
 
 } // namespace sparks

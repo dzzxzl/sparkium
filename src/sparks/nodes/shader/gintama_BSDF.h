@@ -8,17 +8,17 @@ namespace sparks {
 class DiffuseBSDF: public Node {
  public:
   DiffuseBSDF();
-  ~DiffuseBSDF() override = default;
-  void Update() override;
-  void Draw() override;
-  void DrawImGui() override;
-  Prober in_color_; // in slot 0
-  Prober out_color_; // out slot 0
-  Prober deform_; // in slot 1
-  enum DeformType {
-    Geometry = 0, Normal = 1
-  };
-  DeformType deformType_{Geometry}; // in slot 2
+  ~DiffuseBSDF() override;
+  // void Update() override;
+  // void Draw() override;
+  // void DrawImGui() override;
+  void process() override;
+  void process_recursive() override;
+  // in slot 0 is color
+  // in slot 1 is normal
+  // out slot 0 is color
+  glm::vec3 incident_{0.0f, 0.0f, 0.0f};
+  glm::vec3 reflected_{0.0f, 0.0f, 0.0f};
 };
 
 
