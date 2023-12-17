@@ -5,7 +5,7 @@
 #include "material.glsl"
 #include "uniform_objects.glsl"
 
-layout(binding = 0) readonly uniform global_uniform {
+layout(std140, binding = 0) readonly uniform global_uniform {
   GlobalUniformObject global_uniform_object;
 };
 layout(binding = 1) uniform sampler2D[] texture_samplers;

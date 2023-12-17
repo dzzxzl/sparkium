@@ -5,6 +5,7 @@
 #include "imgui.h"
 #include "sparks/assets/accelerated_mesh.h"
 #include "sparks/util/util.h"
+#include "scene.h"
 
 namespace sparks {
 

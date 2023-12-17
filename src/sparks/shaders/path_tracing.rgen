@@ -12,22 +12,22 @@
 layout(binding = 0) uniform accelerationStructureEXT scene;
 layout(binding = 1, rgba32f) uniform image2D accumulation_color;
 layout(binding = 2, r32f) uniform image2D accumulation_number;
-layout(binding = 3) uniform global_uniform_object {
+layout(std140, binding = 3) uniform global_uniform_object {
   GlobalUniformObject guo;
 };
-layout(binding = 4) readonly buffer entity_array {
+layout(std140, binding = 4) readonly buffer entity_array {
   EntityUniformObject entity_objects[];
 };
-layout(binding = 5) readonly buffer material_array {
+layout(std140, binding = 5) readonly buffer material_array {
   Material materials[];
 };
-layout(binding = 6) readonly buffer object_info_array {
+layout(std140, binding = 6) readonly buffer object_info_array {
   ObjectInfo object_infos[];
 };
-layout(binding = 7) readonly buffer vertex_array {
+layout(std140, binding = 7) readonly buffer vertex_array {
   float vertices[];
 };
-layout(binding = 8) readonly buffer index_array {
+layout(std140, binding = 8) readonly buffer index_array {
   uint indices[];
 };
 layout(binding = 9) uniform sampler2D[] texture_samplers;

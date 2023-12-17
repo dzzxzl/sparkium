@@ -1,4 +1,5 @@
 #include "sparks/assets/entity.h"
+#include "entity.h"
 
 namespace sparks {
 
@@ -26,4 +27,20 @@ const std::string &Entity::GetName() const {
   return name_;
 }
 
+const glm::vec3 Entity::getCenter() const
+{
+  auto aabb_box = GetModel()->GetAABB(transform_);
+  float x = (aabb_box.x_low + aabb_box.x_high) / 2;
+  float y = (aabb_box.y_low + aabb_box.y_high) / 2;
+  float z = (aabb_box.z_low + aabb_box.z_high) / 2;
+  return glm::vec3(x, y, z);
+}
+const float Entity::getCrossSection() const
+{
+  auto aabb_box = GetModel()->GetAABB(transform_);
+  float x = (aabb_box.x_low + aabb_box.x_high) / 2;
+  float y = (aabb_box.y_low + aabb_box.y_high) / 2;
+  float z = (aabb_box.z_low + aabb_box.z_high) / 2;
+  return (x*y+y*z+z*x)/3.0f;
+}
 }  // namespace sparks

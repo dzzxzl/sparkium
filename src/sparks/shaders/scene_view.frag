@@ -12,10 +12,10 @@ layout(location = 4) in vec2 tex_coord;
 layout(location = 0) out vec4 color_out;
 layout(location = 1) out uvec4 instance_out;
 
-layout(binding = 0) readonly uniform global_uniform_object {
+layout(std140, binding = 0) readonly uniform global_uniform_object {
   GlobalUniformObject global_object;
 };
-layout(binding = 2) readonly buffer material_uniform_object {
+layout(std140, binding = 2) readonly buffer material_uniform_object {
   Material materials[];
 };
 layout(binding = 3) uniform sampler2D[] texture_samplers;
@@ -30,7 +30,6 @@ void main() {
            max(dot(global_object.envmap_light_direction, normal), 0.0) * 2.0;
   if (material.material_type == MATERIAL_TYPE_EMISSION) {
     color_out = vec4(material.emission_strength * material.emission, 1.0);
-    color_out = vec4(1.0, 0.0, 0.0, 1.0);
   } else {
     color_out =
         vec4(material.albedo_color * light, 1.0) *

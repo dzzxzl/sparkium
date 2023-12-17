@@ -4,7 +4,7 @@
 
 layout(location = 0) in vec2 tex_coord;
 
-layout(binding = 0) uniform global_uniform_object {
+layout(std140, binding = 0) uniform global_uniform_object {
   GlobalUniformObject global_object;
 };
 layout(binding = 1, r32ui) uniform uimage2D stencil_image;

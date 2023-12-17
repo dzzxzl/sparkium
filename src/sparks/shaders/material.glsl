@@ -6,6 +6,7 @@ struct Material {
   float emission_strength;
   float alpha;
   uint material_type;
+  float IOR;
 };
 
 #define MATERIAL_TYPE_LAMBERTIAN 0

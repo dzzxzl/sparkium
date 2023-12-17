@@ -14,13 +14,13 @@ layout(location = 2) out vec3 frag_normal;
 layout(location = 3) out vec3 frag_tangent;
 layout(location = 4) out vec2 frag_tex_coord;
 
-layout(binding = 0) readonly uniform global_uniform_object {
+layout(std140, binding = 0) readonly uniform global_uniform_object {
   GlobalUniformObject global_object;
 };
-layout(binding = 1) readonly buffer entity_uniform_object {
+layout(std140, binding = 1) readonly buffer entity_uniform_object {
   EntityUniformObject entity_objects[];
 };
-layout(binding = 2) readonly buffer material_uniform_object {
+layout(std140, binding = 2) readonly buffer material_uniform_object {
   Material materials[];
 };
 
