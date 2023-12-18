@@ -6,11 +6,11 @@ MixShader::MixShader()
 {
     in_slots_.resize(3);
     out_slots_.resize(1);
-    out_slots_[0]->slotType_ = Slot::SlotType::output;
     in_slots_[0] = new FloatSlot(0.5f);
     in_slots_[1] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     in_slots_[2] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     out_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
+    out_slots_[0]->slotType_ = Slot::SlotType::output;
 }
 MixShader::~MixShader() {
     for (auto& slot : in_slots_) {
@@ -24,10 +24,10 @@ Multiplier::Multiplier()
 {
     in_slots_.resize(2);
     out_slots_.resize(1);
-    out_slots_[0]->slotType_ = Slot::SlotType::output;
     in_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     in_slots_[1] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     out_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
+    out_slots_[0]->slotType_ = Slot::SlotType::output;
 }
 Multiplier::~Multiplier() {
     for (auto& slot : in_slots_) {
@@ -48,6 +48,7 @@ void Multiplier::process() {
     // process current node
     glm::vec3 in_color1 = static_cast<Vec3Slot*>(in_slots_[0])->value_;
     glm::vec3 in_color2 = static_cast<Vec3Slot*>(in_slots_[1])->value_;
+    // glm::vec3 res_colr = in_color1 * in_color2;
     glm::vec3 res_colr = in_color1 * in_color2;
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = res_colr;
     // push to next node

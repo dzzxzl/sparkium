@@ -10,7 +10,7 @@ class AmbientOcclusion: public Node {
  public:
   AmbientOcclusion();
   ~AmbientOcclusion() override = default;
-  void process() override;
+  // void process() override;
   // void Update() override;
   // void Draw() override;
   // void DrawImGui() override;
@@ -27,7 +27,7 @@ class TextureSample: public Node {
   // void Draw() override;
   // void DrawImGui() override;
   // out slot 0 color_
-  Scene* scene_;
+  const Scene* scene_;
   int entity_id_{-1};
   int texture_id_{-1};
   float u_{0.0f};

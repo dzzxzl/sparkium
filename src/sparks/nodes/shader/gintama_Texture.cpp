@@ -7,12 +7,13 @@ Checker::Checker()
 {
     in_slots_.resize(3);
     out_slots_.resize(2);
-    out_slots_[0]->slotType_ = Slot::SlotType::output;
     in_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     in_slots_[1] = new Vec3Slot(glm::vec3(1.0f, 1.0f, 1.0f));
     in_slots_[2] = new FloatSlot(10.0f);
     out_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     out_slots_[1] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
+    out_slots_[0]->slotType_ = Slot::SlotType::output;
+    out_slots_[1]->slotType_ = Slot::SlotType::output;
 }
 
 Checker::~Checker() {
@@ -41,7 +42,7 @@ void Checker::process() {
 
     float grid_w = 1.0f / scale;
 
-    float dx = grid_w / 1e4f;
+    float dx = grid_w / 2.0f;
 
     int grid_x = std::floor(u_ / grid_w);
     int grid_xdx = std::floor((u_ + dx) / grid_w);
@@ -53,20 +54,25 @@ void Checker::process() {
     auto curColorDy = (grid_x + grid_ydy) % 2 == 0 ? color1_len : color2_len;
     auto diffx = 0.0f;
     auto diffy = 0.0f;
+    auto diffz = 1.0f;
     if(curColor > curColorDx){
-        diffx = 1;
+        diffx = 1.0f;
+        diffz = 0.0f;
     }
     if(curColor > curColorDy){
-        diffy = 1;
+        diffy = 1.0f;
+        diffz = 0.0f;
     }
     if(curColor < curColorDx){
-        diffx = -1;
+        diffx = -1.0f;
+        diffz = 0.0f;
     }
     if(curColor < curColorDy){
-        diffy = -1;
+        diffy = -1.0f;
+        diffz = 0.0f;
     }
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = (grid_x + grid_y) % 2 == 0 ? color1 : color2;
-    static_cast<Vec3Slot*>(out_slots_[1])->value_ = glm::vec3(diffx, diffy, 0.0f);
+    static_cast<Vec3Slot*>(out_slots_[1])->value_ = glm::vec3(diffx, diffy, diffz);
     // push to next node
     for(int i=0; i<2; i++){
         if(out_slots_[i]->nextNode_ != nullptr) {

@@ -219,10 +219,7 @@ glm::vec3 PathTracer::nodeBSDF(
     glm::vec3 normal, glm::vec3 tangent
 ) const {
   if(shader_preset == CheckerBump){
-    Presets pppp;
-    pppp.checkgood();
-    return glm::vec3(0.5f);
-    // return pppp.checkerBump(scene, entity_id, texture_id, u, v, incident, reflected, normal, tangent);
+    return Presets::checkerBump(scene, entity_id, texture_id, u, v, incident, reflected, normal, tangent);
   }
   else {
     return glm::vec3(0.5f);

@@ -9,7 +9,7 @@ class MixShader: public Node {
  public:
   MixShader();
   ~MixShader() override;
-  void process() override;
+  // void process() override;
   // void Update() override;
   // void Draw() override;
   // void DrawImGui() override;
