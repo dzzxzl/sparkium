@@ -13,7 +13,6 @@ class DiffuseBSDF: public Node {
   // void Draw() override;
   // void DrawImGui() override;
   void process() override;
-  void process_recursive() override;
   // in slot 0 is color
   // in slot 1 is normal
   // out slot 0 is color

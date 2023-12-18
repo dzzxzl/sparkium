@@ -50,7 +50,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       } else if (material.material_type == MATERIAL_TYPE_SPECULAR) {
         origin = hit_record.position;
         direction = glm::reflect(direction, -hit_record.normal);
-      } else if (material.material_type == MATERIAL_TYPE_NODE) {
+      } else if (material.material_type == MATERIAL_TYPE_NODE) { //************************************* shader node
         origin = hit_record.position;
         for(int eme_iter=0; eme_iter < scene_->GetEntityCount(); eme_iter++){
           auto &eme_material = scene_->GetEntity(eme_iter).GetMaterial();
@@ -67,17 +67,30 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
                 continue;
               }
               // not blocked 
+              auto computed_bsdf = nodeBSDF(
+                ShaderPreset::CheckerBump,
+                scene_, hit_record.hit_entity_id, material.albedo_texture_id,
+                hit_record.tex_coord.x, hit_record.tex_coord.y,
+                -eme_direction, -direction, -hit_record.normal, hit_record.tangent
+              );
               radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
                 * crossSection / (distance * distance)
-                * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_NODE, nullptr);
+                * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
+                * computed_bsdf
+                ;
             }
           }
         }
         break;
         auto old_direction = direction;
         direction = SampleHemisphere(-hit_record.normal);
-        throughput *= BSDF(-old_direction, -hit_record.normal, -direction, 
-         MATERIAL_TYPE_NODE, nullptr) * 2.0f / GINTAMA_P_RR;
+        auto computed_bsdf = nodeBSDF(
+          ShaderPreset::CheckerBump,
+          scene_, hit_record.hit_entity_id, material.albedo_texture_id,
+          hit_record.tex_coord.x, hit_record.tex_coord.y,
+          -direction, -old_direction, -hit_record.normal, hit_record.tangent
+        );
+        throughput *= computed_bsdf * 2.0f / GINTAMA_P_RR;
          if(genRanFloat() > GINTAMA_P_RR){
            break;
          }
@@ -114,6 +127,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
               radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
                 * crossSection / (distance * distance)
                 * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
+                * BSDF( -direction, -hit_record.normal, -eme_direction, MATERIAL_TYPE_LAMBERTIAN )
                 * material_multiplier;
             }
           }
@@ -185,19 +199,33 @@ float PathTracer::genRanFloat() const
 
 
 
-float PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type, Node* endShaderNode=nullptr) const
+glm::vec3 PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type) const
 {
   if( material_type == MATERIAL_TYPE_LAMBERTIAN ) {
-    return std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f);
+    return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f));
   } 
   else if (material_type == MATERIAL_TYPE_EMISSION) {
-    return std::max( glm::dot(reflection, normal), 0.0f);
-  }
-  else if (material_type == MATERIAL_TYPE_NODE) {
-    return endShaderNode->process();
+    return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f));
   }
   else {
-    return 1.0f;
+    return glm::vec3(1.0f);
+  }
+}
+
+glm::vec3 PathTracer::nodeBSDF(
+    ShaderPreset shader_preset,
+    const Scene* scene, int entity_id, int texture_id, 
+    float u, float v, glm::vec3 incident, glm::vec3 reflected, 
+    glm::vec3 normal, glm::vec3 tangent
+) const {
+  if(shader_preset == CheckerBump){
+    Presets pppp;
+    pppp.checkgood();
+    return glm::vec3(0.5f);
+    // return pppp.checkerBump(scene, entity_id, texture_id, u, v, incident, reflected, normal, tangent);
+  }
+  else {
+    return glm::vec3(0.5f);
   }
 }
 

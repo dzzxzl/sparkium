@@ -12,7 +12,7 @@ AmbientOcclusion::AmbientOcclusion() {
 
 }
 
-TextureSample::TextureSample(Scene *scene,
+TextureSample::TextureSample(const Scene *scene,
                             int entity_id,
                             int texture_id, float u, float v):
                             scene_(scene), entity_id_(entity_id), texture_id_(texture_id), u_(u), v_(v) {
@@ -25,4 +25,17 @@ TextureSample::~TextureSample() {
     for (auto& slot : out_slots_) {
         delete slot;
     }
+}
+
+void TextureSample::process() {
+    // just sample
+    glm::vec3 sample( scene_->GetTextures()[texture_id_].Sample({u_,v_}) );
+    static_cast<Vec3Slot*>(out_slots_[0])->value_ = sample;
+    // push to next node
+    if(out_slots_[0]->nextNode_ != nullptr) {
+        auto next_slot = out_slots_[0]->nextNode_->in_slots_[out_slots_[0]->nextSlotId_];
+        static_cast<Vec3Slot*>(next_slot)->value_ = sample;
+    }
+}
+
 }  // namespace sparks

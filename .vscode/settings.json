@@ -4,6 +4,10 @@
         "*.rchit": "glsl",
         "*.rgen": "glsl",
         "*.rmiss": "glsl",
-        "random": "cpp"
+        "random": "cpp",
+        "*.tcc": "cpp",
+        "functional": "cpp",
+        "iostream": "cpp",
+        "*.inc": "cpp"
     }
 }

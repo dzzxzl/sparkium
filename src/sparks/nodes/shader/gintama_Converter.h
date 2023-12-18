@@ -9,6 +9,7 @@ class MixShader: public Node {
  public:
   MixShader();
   ~MixShader() override;
+  void process() override;
   // void Update() override;
   // void Draw() override;
   // void DrawImGui() override;
@@ -22,6 +23,7 @@ class Multiplier: public Node {
  public:
   Multiplier();
   ~Multiplier() override;
+  void process() override;
   // void Update() override;
   // void Draw() override;
   // void DrawImGui() override;

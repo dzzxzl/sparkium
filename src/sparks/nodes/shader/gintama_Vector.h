@@ -20,7 +20,9 @@ class Bump: public Node {
   // in slot 2 is height
   // in slot 3 is gradient
   // out slot 0 is out normal
+  void process() override;
   glm::vec3 normal_{0.0f, 0.0f, 0.0f};
+  glm::vec3 tangent_{0.0f, 0.0f, 0.0f};
 };
 
 class Color: public Node {
@@ -32,6 +34,7 @@ class Color: public Node {
   // void Draw() override;
   // void DrawImGui() override;
   // out slot 0 is color
+  void process() override;
   glm::vec3 color_{0.0f, 0.0f, 0.0f};
 };
 

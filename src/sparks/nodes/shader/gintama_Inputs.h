@@ -10,17 +10,19 @@ class AmbientOcclusion: public Node {
  public:
   AmbientOcclusion();
   ~AmbientOcclusion() override = default;
-  void Update() override;
-  void Draw() override;
-  void DrawImGui() override;
+  void process() override;
+  // void Update() override;
+  // void Draw() override;
+  // void DrawImGui() override;
   float depth_{1.0f};
 };
 
 class TextureSample: public Node {
  public:
   TextureSample() = delete;
-  TextureSample(Scene* scene, int entity_id, int texture_id, float u, float v);
+  TextureSample(const Scene* scene, int entity_id, int texture_id, float u, float v);
   ~TextureSample() override;
+  void process() override;
   // void Update() override;
   // void Draw() override;
   // void DrawImGui() override;
