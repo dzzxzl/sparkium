@@ -71,7 +71,8 @@ class Renderer {
   // Scene scene_{"../../scenes/base.xml"};
   // Scene scene_{"../../scenes/f.xml"};
   // Scene scene_{"../../scenes/cornell_specular.xml"};
-  Scene scene_{"../../scenes/cornell_checker.xml"};
+  // Scene scene_{"../../scenes/cornell_checker.xml"};
+  Scene scene_{"../../scenes/cornell_checker_with_tex_coord.xml"};
   // Scene scene_{"../../scenes/cornell.xml"};
   // Scene scene_{"../../scenes/cornell_glass.xml"};
 

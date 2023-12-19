@@ -1,6 +1,7 @@
 #pragma once
 #include "vector"
 #include "glm/glm.hpp"
+#include "grassland/grassland.h"
 
 namespace sparks {
 
@@ -105,6 +106,13 @@ class Node {
 //   void Draw() override;
 //   void DrawImGui() override;
 // };
+
+void setFloat(Slot* slot, float value);
+void setVec3(Slot* slot, glm::vec3 value);
+void setEnum(Slot* slot, int value);
+void getFloat(Slot* slot);
+void getVec3(Slot* slot);
+void getEnum(Slot* slot);
 
 
 } // namespace sparks

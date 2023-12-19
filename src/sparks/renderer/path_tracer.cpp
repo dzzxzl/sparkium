@@ -50,8 +50,12 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       } else if (material.material_type == MATERIAL_TYPE_SPECULAR) {
         origin = hit_record.position;
         direction = glm::reflect(direction, -hit_record.normal);
-      } else if (material.material_type == MATERIAL_TYPE_NODE) { //************************************* shader node
+      } 
+      else if (material.material_type == MATERIAL_TYPE_NODE) {
         origin = hit_record.position;
+        // if(hit_record.tex_coord.x != 0.0f || hit_record.tex_coord.y != 0.0f) {
+        //   LAND_INFO("u, v: {:.2f}, {:.2f}", hit_record.tex_coord.x, hit_record.tex_coord.y);
+        // }
         for(int eme_iter=0; eme_iter < scene_->GetEntityCount(); eme_iter++){
           auto &eme_material = scene_->GetEntity(eme_iter).GetMaterial();
           if(eme_material.material_type == MATERIAL_TYPE_EMISSION){
@@ -71,7 +75,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
                 ShaderPreset::CheckerBump,
                 scene_, hit_record.hit_entity_id, material.albedo_texture_id,
                 hit_record.tex_coord.x, hit_record.tex_coord.y,
-                -eme_direction, -direction, -hit_record.normal, hit_record.tangent
+                -eme_direction, -direction, hit_record.geometry_normal, hit_record.tangent
               );
               radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
                 * crossSection / (distance * distance)
@@ -100,6 +104,10 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
             glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(
                 hit_record.tex_coord)};
         origin = hit_record.position;
+        // LAND_INFO("texture id: {}", material.albedo_texture_id);
+        // if(hit_record.tex_coord.x != 0.0f || hit_record.tex_coord.y != 0.0f) {
+        //   LAND_INFO("u, v: {:.2f}, {:.2f}", hit_record.tex_coord.x, hit_record.tex_coord.y);
+        // }
         // environment light
         // auto direction_env = scene_->GetEnvmapLightDirection();
         // radiance += throughput * material_multiplier * scene_->GetEnvmapMinorColor();
@@ -127,7 +135,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
               radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
                 * crossSection / (distance * distance)
                 * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
-                * BSDF( -direction, -hit_record.normal, -eme_direction, MATERIAL_TYPE_LAMBERTIAN )
+                * BSDF( -direction, hit_record.geometry_normal, -eme_direction, MATERIAL_TYPE_LAMBERTIAN )
                 * material_multiplier;
             }
           }

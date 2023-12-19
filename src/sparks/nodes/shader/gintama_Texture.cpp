@@ -7,8 +7,8 @@ Checker::Checker()
 {
     in_slots_.resize(3);
     out_slots_.resize(2);
-    in_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
-    in_slots_[1] = new Vec3Slot(glm::vec3(1.0f, 1.0f, 1.0f));
+    in_slots_[0] = new Vec3Slot(glm::vec3(1.0f));
+    in_slots_[1] = new Vec3Slot(glm::vec3(0.0f));
     in_slots_[2] = new FloatSlot(10.0f);
     out_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     out_slots_[1] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -42,7 +42,7 @@ void Checker::process() {
 
     float grid_w = 1.0f / scale;
 
-    float dx = grid_w / 2.0f;
+    float dx = grid_w / 10.0f;
 
     int grid_x = std::floor(u_ / grid_w);
     int grid_xdx = std::floor((u_ + dx) / grid_w);
