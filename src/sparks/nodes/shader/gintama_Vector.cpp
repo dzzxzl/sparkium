@@ -34,11 +34,12 @@ void Bump::process() {
     int type = static_cast<EnumSlot*>(in_slots_[1])->value_;
     glm::vec3 height = static_cast<Vec3Slot*>(in_slots_[2])->value_;
     glm::vec3 grad = static_cast<Vec3Slot*>(in_slots_[3])->value_;
-    glm::vec3 e_v = glm::cross(normal_, tangent_);
+    glm::vec3 e_v = glm::normalize( glm::cross(tangent_, normal_) );
+    glm::vec3 e_u = glm::normalize( glm::cross( normal_, e_v ) );
     glm::vec3 out_normal = normal_;
     if(type == 0) {
         // height displacement
-        out_normal = grad[0] * tangent_ + grad[1] * e_v + grad[2] * normal_;
+        out_normal = grad[0] * e_u + grad[1] * e_v + grad[2] * normal_;
         out_normal = glm::normalize(out_normal);
     } else if(type == 1) {
         // normal rectification

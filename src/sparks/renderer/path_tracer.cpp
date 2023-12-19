@@ -28,6 +28,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       auto &material =
           scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
       if (material.material_type == MATERIAL_TYPE_EMISSION) {
+        // return glm::vec3(1.0f, 0.0f, 0.0f);
         radiance += throughput * material.emission * material.emission_strength;
         break;
       } 
@@ -71,13 +72,17 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
                 continue;
               }
               // not blocked 
+              // return glm::vec3(0.0f,0.0f,1.0f);
               auto computed_bsdf = nodeBSDF(
                 ShaderPreset::CheckerBump,
                 scene_, hit_record.hit_entity_id, material.albedo_texture_id,
                 hit_record.tex_coord.x, hit_record.tex_coord.y,
                 -eme_direction, -direction, hit_record.geometry_normal, hit_record.tangent
               );
-              radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
+              //LAND_INFO("crossSection is {}", crossSection);
+              radiance += 
+                throughput *
+                eme_material.emission * eme_material.emission_strength
                 * crossSection / (distance * distance)
                 * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
                 * computed_bsdf
@@ -100,6 +105,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
          }
       }
       else if (material.material_type == MATERIAL_TYPE_LAMBERTIAN) {
+        // return glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 material_multiplier = material.albedo_color *
             glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(
                 hit_record.tex_coord)};
@@ -132,7 +138,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
                 continue;
               }
               // not blocked 
-              radiance += throughput * eme_material.emission * eme_material.emission_strength / distance
+              radiance += throughput * eme_material.emission * eme_material.emission_strength
                 * crossSection / (distance * distance)
                 * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
                 * BSDF( -direction, hit_record.geometry_normal, -eme_direction, MATERIAL_TYPE_LAMBERTIAN )

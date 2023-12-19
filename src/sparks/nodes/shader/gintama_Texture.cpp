@@ -42,7 +42,7 @@ void Checker::process() {
 
     float grid_w = 1.0f / scale;
 
-    float dx = grid_w / 10.0f;
+    float dx = grid_w / 20.0f;
 
     int grid_x = std::floor(u_ / grid_w);
     int grid_xdx = std::floor((u_ + dx) / grid_w);
