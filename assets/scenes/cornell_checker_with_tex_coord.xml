@@ -25,7 +25,7 @@
 
         <material type="emission">
             <emission value="1.0 1.0 1.0"/>
-            <emission_strength value="500.0"/>
+            <emission_strength value="30.0"/>
         </material>
     </model>
 
@@ -190,7 +190,7 @@
             <translation value="172 80 168"/>
             <rotation value="0 0 0"/>
         </transform>
-        <material type="node">
+        <material type="lambertian">
             <albedo value="1 1 1"/>
         </material>
     </model>

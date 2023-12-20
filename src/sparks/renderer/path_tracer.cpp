@@ -61,11 +61,11 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           auto &eme_material = scene_->GetEntity(eme_iter).GetMaterial();
           if(eme_material.material_type == MATERIAL_TYPE_EMISSION){
             HitRecord eme_hit_record;
-            auto eme_origin = scene_->GetEntity(eme_iter).getCenter();
-            auto crossSection = scene_->GetEntity(eme_iter).getCrossSection();
+            auto eme_origin = scene_->GetEntity(eme_iter).getSamplePoint();
+            auto crossSection = scene_->GetEntity(eme_iter).getSurfaceArea();
             auto eme_direction = glm::normalize(eme_origin - origin);
-            auto distance = glm::distance(eme_origin, origin);
             auto eme_t = scene_->TraceRay(origin, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+            auto distance = glm::distance(eme_hit_record.position, origin);
             if(eme_t > 0.0f){
               // blocked - yes
               if( eme_hit_record.hit_entity_id != eme_iter){
@@ -100,7 +100,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           -direction, -old_direction, -hit_record.normal, hit_record.tangent
         );
         throughput *= computed_bsdf * 2.0f / GINTAMA_P_RR;
-         if(genRanFloat() > GINTAMA_P_RR){
+         if(genRandFloat(0,1) > GINTAMA_P_RR){
            break;
          }
       }
@@ -127,8 +127,8 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           auto &eme_material = scene_->GetEntity(eme_iter).GetMaterial();
           if(eme_material.material_type == MATERIAL_TYPE_EMISSION){
             HitRecord eme_hit_record;
-            auto eme_origin = scene_->GetEntity(eme_iter).getCenter();
-            auto crossSection = scene_->GetEntity(eme_iter).getCrossSection();
+            auto eme_origin = scene_->GetEntity(eme_iter).getSamplePoint();
+            auto pdf_area = scene_->GetEntity(eme_iter).getSurfaceArea();
             auto eme_direction = glm::normalize(eme_origin - origin);
             auto distance = glm::distance(eme_origin, origin);
             auto eme_t = scene_->TraceRay(origin, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
@@ -136,12 +136,16 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
               // blocked - yes
               if( eme_hit_record.hit_entity_id != eme_iter){
                 continue;
+              } else if( eme_hit_record.position != eme_origin ) {
+                // continue;
               }
               // not blocked 
               radiance += throughput * eme_material.emission * eme_material.emission_strength
-                * crossSection / (distance * distance)
-                * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
+                * pdf_area / (distance * distance)
+                // * BSDF(-eme_direction, -eme_hit_record.normal, {}, MATERIAL_TYPE_EMISSION)
+                * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
                 * BSDF( -direction, hit_record.geometry_normal, -eme_direction, MATERIAL_TYPE_LAMBERTIAN )
+
                 * material_multiplier;
             }
           }
@@ -151,7 +155,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         direction = SampleHemisphere(-hit_record.normal);
         throughput *= material_multiplier * BSDF(-old_direction, -hit_record.normal, -direction, 
          MATERIAL_TYPE_LAMBERTIAN) * 2.0f / GINTAMA_P_RR;
-         if(genRanFloat() > GINTAMA_P_RR){
+         if(genRandFloat(0,1) > GINTAMA_P_RR){
            break;
          }
       }
@@ -203,23 +207,25 @@ glm::vec3 PathTracer::SampleHemisphere(glm::vec3 axis) const
   return sampleDirection;
 }
 
-float PathTracer::genRanFloat() const
-{
-  std::random_device rd;
-  std::default_random_engine eng(rd());
-  std::uniform_real_distribution<float> distr(0.0f, 1.0f);
-  return distr(eng);
-}
+// float PathTracer::genRanFloat() const
+// {
+//   std::random_device rd;
+//   std::default_random_engine eng(rd());
+//   std::uniform_real_distribution<float> distr(0.0f, 1.0f);
+//   return distr(eng);
+// }
 
 
 
 glm::vec3 PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type) const
 {
   if( material_type == MATERIAL_TYPE_LAMBERTIAN ) {
-    return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f));
+    // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f));
+    return glm::vec3( 1.0f / glm::radians(180.0f) );
   } 
   else if (material_type == MATERIAL_TYPE_EMISSION) {
-    return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f));
+    // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f));
+    return glm::vec3(1.0f);
   }
   else {
     return glm::vec3(1.0f);

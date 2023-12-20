@@ -41,6 +41,9 @@ void Bump::process() {
         // height displacement
         out_normal = grad[0] * e_u + grad[1] * e_v + grad[2] * normal_;
         out_normal = glm::normalize(out_normal);
+        if (glm::dot(out_normal, reflection_) < 0.0f) {
+            out_normal = normal_;
+        }
     } else if(type == 1) {
         // normal rectification
         bool outward = true;

@@ -20,5 +20,7 @@ class Model {
   [[nodiscard]] virtual std::vector<Vertex> GetVertices() const = 0;
   [[nodiscard]] virtual std::vector<uint32_t> GetIndices() const = 0;
   virtual const char *GetDefaultEntityName();
+  virtual glm::vec3 samplePoint() const = 0;
+  virtual float getSurfaceArea() const = 0;
 };
 }  // namespace sparks

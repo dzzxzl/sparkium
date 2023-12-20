@@ -23,6 +23,7 @@ class Bump: public Node {
   void process() override;
   glm::vec3 normal_{0.0f, 0.0f, 0.0f};
   glm::vec3 tangent_{0.0f, 0.0f, 0.0f};
+  glm::vec3 reflection_{0.0f, 0.0f, 0.0f};
 };
 
 class Color: public Node {

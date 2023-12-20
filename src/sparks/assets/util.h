@@ -18,4 +18,8 @@ glm::mat4 XmlTransformMatrix(tinyxml2::XMLElement *transform_element);
 
 glm::mat4 XmlComposeTransformMatrix(tinyxml2::XMLElement *object_element);
 
+float genRandFloat(float low, float high);
+
+int genRandInt(int low, int high);
+
 }  // namespace sparks

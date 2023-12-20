@@ -3,6 +3,7 @@
 #include "sparks/assets/material.h"
 #include "sparks/assets/mesh.h"
 #include "sparks/assets/model.h"
+#include "sparks/assets/util.h"
 
 namespace sparks {
 class Entity {
@@ -33,8 +34,8 @@ class Entity {
   [[nodiscard]] Material &GetMaterial();
   [[nodiscard]] const Material &GetMaterial() const;
   [[nodiscard]] const std::string &GetName() const;
-  [[nodiscard]] const glm::vec3 getCenter() const;
-  [[nodiscard]] const float getCrossSection() const;
+  [[nodiscard]] float getSurfaceArea() const;
+  [[nodiscard]] glm::vec3 getSamplePoint() const;
 
  private:
   std::unique_ptr<Model> model_;

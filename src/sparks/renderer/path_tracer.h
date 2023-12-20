@@ -6,6 +6,7 @@
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "sparks/assets/material.h"
+#include "sparks/assets/util.h"
 #include "sparks/nodes/shader/gintama_Layout.h"
 #include "sparks/nodes/shader/gintama_Best_Presets.h"
 
@@ -22,7 +23,7 @@ class PathTracer {
                                     int y,
                                     int sample) const;
   [[nodiscard]] glm::vec3 SampleHemisphere(glm::vec3 axis) const;
-  [[nodiscard]] float genRanFloat() const;
+  // [[nodiscard]] float genRanFloat() const;
   [[nodiscard]] glm::vec3 BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type) const;
   [[nodiscard]] glm::vec3 nodeBSDF(
     ShaderPreset shader_preset,

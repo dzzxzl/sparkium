@@ -14,7 +14,8 @@ glm::vec3 Presets::checkerBump(const Scene* scene, int entity_id, int texture_id
     Bump bump;
     bump.normal_ = normal;
     bump.tangent_ = tangent;
-    // setEnum(bump.in_slots_[1], 1);
+    bump.reflection_ = reflected;
+    setEnum(bump.in_slots_[1], 0);
     DiffuseBSDF diffuse;
     diffuse.incident_ = incident;
     diffuse.reflected_ = reflected;

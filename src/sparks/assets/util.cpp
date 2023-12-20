@@ -126,4 +126,13 @@ glm::mat4 XmlComposeTransformMatrix(tinyxml2::XMLElement *object_element) {
   }
   return result;
 }
+
+float genRandFloat(float low, float high) {
+  return low + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (high - low)));
+}
+
+int genRandInt(int low, int high) {
+  return low + rand() % (high - low);
+}
+
 }  // namespace sparks

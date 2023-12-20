@@ -369,4 +369,35 @@ Mesh::Mesh(const tinyxml2::XMLElement *element) {
   }
 }
 
+float Mesh::recompute_surface_area() const{
+  // iterate all faces
+  float surface_area_ = 0.0f;
+  for (int i = 0; i < indices_.size(); i += 3) {
+    auto v0 = vertices_[indices_[i]];
+    auto v1 = vertices_[indices_[i + 1]];
+    auto v2 = vertices_[indices_[i + 2]];
+    surface_area_ += glm::length(glm::cross(v1.position - v0.position,
+                                            v2.position - v0.position));
+  }
+  return surface_area_ / 2.0f;
+}
+
+glm::vec3 Mesh::samplePoint() const {
+  // first choose a face
+  auto face_index = genRandInt(0, indices_.size() / 3 - 1);
+  // then choose a point on the face
+  auto v0 = vertices_[indices_[face_index * 3]];
+  auto v1 = vertices_[indices_[face_index * 3 + 1]];
+  auto v2 = vertices_[indices_[face_index * 3 + 2]];
+  auto u = genRandFloat(0.0f, 1.0f);
+  auto v = genRandFloat(0.0f, 1.0f - u);
+  auto w = 1.0f - u - v;
+  return v0.position * w + v1.position * u + v2.position * v;
+}
+
+float Mesh::getSurfaceArea() const {
+  return recompute_surface_area();
+}
+
+
 }  // namespace sparks
