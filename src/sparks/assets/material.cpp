@@ -14,7 +14,7 @@ std::unordered_map<std::string, MaterialType> material_name_map{
     {"transmissive", MATERIAL_TYPE_TRANSMISSIVE},
     {"principled", MATERIAL_TYPE_PRINCIPLED},
     {"emission", MATERIAL_TYPE_EMISSION},
-    {"node", MATERIAL_TYPE_NODE},
+    {"checkerBump", MATERIAL_TYPE_CHECKERBUMP},
     {"glass", MATERIAL_TYPE_GLASS}};
 }
 

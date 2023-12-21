@@ -177,7 +177,7 @@
         <index value="19"/>
         <index value="18"/>
 
-        <material type="node">
+        <material type="checkerBump">
             <albedo value="1 1 1"/>
         </material>
     </model>

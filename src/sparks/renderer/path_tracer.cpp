@@ -106,9 +106,9 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       }
       else if (material.material_type == MATERIAL_TYPE_LAMBERTIAN) {
         // return glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 material_multiplier = material.albedo_color *
-            glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(
-                hit_record.tex_coord)};
+        // glm::vec3 material_multiplier = material.albedo_color *
+        //     glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(
+        //         hit_record.tex_coord)};
         origin = hit_record.position;
         // LAND_INFO("texture id: {}", material.albedo_texture_id);
         // if(hit_record.tex_coord.x != 0.0f || hit_record.tex_coord.y != 0.0f) {
@@ -182,70 +182,6 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
   return radiance;
 }
 
-// glm::vec3 PathTracer::SampleHemisphere(glm::vec3 axis) const
-// {
-//   std::random_device rd;
-//   std::default_random_engine eng(rd());
-//   std::uniform_real_distribution<float> distr(0.0f, 1.0f);
-//   glm::vec3 sampleDirection(0.0f);
-//   while (glm::dot(sampleDirection, axis) == 0.0f) {
-//     float radius = 1.0f;
-//     float pi = glm::radians(180.0f);
-//     float theta = distr(eng) * 2.0f * pi;
-//     float phi = distr(eng) * 1.0f * pi;
-
-//     // Convert spherical coordinates to Cartesian coordinates
-//     float x = radius * glm::sin(phi) * glm::cos(theta);
-//     float y = radius * glm::sin(phi) * glm::sin(theta);
-//     float z = radius * glm::cos(phi);
-
-//     sampleDirection = glm::vec3(x, y, z);
-//     if (glm::dot(sampleDirection, axis) < 0.0f) {
-//       sampleDirection = -sampleDirection;
-//     }
-//   }
-//   return sampleDirection;
-// }
-
-// float PathTracer::genRanFloat() const
-// {
-//   std::random_device rd;
-//   std::default_random_engine eng(rd());
-//   std::uniform_real_distribution<float> distr(0.0f, 1.0f);
-//   return distr(eng);
-// }
-
-
-
-// glm::vec3 PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type) const
-// {
-//   if( material_type == MATERIAL_TYPE_LAMBERTIAN ) {
-//     // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f));
-//     return glm::vec3( 1.0f / glm::radians(180.0f) );
-//   } 
-//   else if (material_type == MATERIAL_TYPE_EMISSION) {
-//     // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f));
-//     return glm::vec3(1.0f);
-//   }
-//   else {
-//     return glm::vec3(1.0f);
-//   }
-// }
-
-// glm::vec3 PathTracer::nodeBSDF(
-//     ShaderPreset shader_preset,
-//     const Scene* scene, int entity_id, int texture_id, 
-//     float u, float v, glm::vec3 incident, glm::vec3 reflected, 
-//     glm::vec3 normal, glm::vec3 tangent, glm::vec3 position
-// ) const {
-//   if(shader_preset == CheckerBump){
-//     return Presets::checkerBump(scene, entity_id, texture_id, u, v, incident, reflected, normal, tangent);
-//   }
-//   else {
-//     return glm::vec3(0.5f);
-//   }
-// }
-
 glm::vec3 PathTracer::importanceSample(HitRecord hit_record, 
       glm::vec3 reflection, MaterialType material_type) const {
 
@@ -293,6 +229,46 @@ glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record,
 
   else if(shader_preset == ShaderPreset::CheckerBump) {
     return Presets::checkerBump(scene, hit_record, light_record);
+  }
+
+}
+
+void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record,
+      glm::vec3 reflection, ShaderPreset shader_preset, glm::vec3 &radiance, glm::vec3 throughput) const {
+
+  for(int eme_iter=0; eme_iter < scene->GetEntityCount(); eme_iter++){
+    auto &eme_material = scene->GetEntity(eme_iter).GetMaterial();
+    if(eme_material.material_type == MATERIAL_TYPE_EMISSION) {
+      HitRecord eme_hit_record;
+      auto eme_origin = scene->GetEntity(eme_iter).getSamplePoint();
+      auto pdf_area = scene->GetEntity(eme_iter).getSurfaceArea();
+      auto eme_direction = glm::normalize(eme_origin - hit_record.position);
+      auto distance = glm::distance(eme_origin, hit_record.position);
+      auto eme_t = scene->TraceRay(hit_record.position, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+      if(eme_t > 0.0f) {
+        // blocked 
+        if(eme_hit_record.hit_entity_id != eme_iter) {
+          continue;
+        } else if(eme_hit_record.position != eme_origin) {
+          continue;
+        }
+        radiance += throughput * eme_material.emission * eme_material.emission_strength * pdf_area / (distance * distance)
+        * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
+        * surfaceBSDF(scene, hit_record, {-eme_direction, -reflection}, shader_preset);
+      }
+    }
+  }
+
+}
+
+void PathTracer::sampleEnv(const Scene* scene, HitRecord hit_record,
+      glm::vec3 reflection, ShaderPreset shader_preset, glm::vec3 &radiance, glm::vec3 throughput) const {
+
+  auto direction_env = scene_->GetEnvmapLightDirection();
+  radiance += throughput * scene_->GetEnvmapMinorColor();
+  if (scene_->TraceRay(hit_record.position, direction_env, 1e-3f, 1e4f, nullptr) < 0.0f) {
+    radiance += throughput * scene_->GetEnvmapMajorColor() * 
+      surfaceBSDF(scene, hit_record, {direction_env, reflection}, shader_preset);
   }
 
 }
