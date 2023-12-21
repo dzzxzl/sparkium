@@ -11,4 +11,10 @@ struct HitRecord {
   glm::vec2 tex_coord{};
   bool front_face{};
 };
+
+struct LightRecord {
+  glm::vec3 incident{};
+  glm::vec3 reflected{};
+};
+
 }  // namespace sparks

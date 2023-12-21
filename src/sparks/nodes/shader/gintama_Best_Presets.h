@@ -16,8 +16,9 @@ class Presets {
     ~Presets() = default;
     // int test = 0;
     // bool checkgood();
-    static glm::vec3 checkerBump(const Scene* scene, int entity_id, int texture_id, 
-        float u, float v, glm::vec3 incident, glm::vec3 reflected, glm::vec3 normal, glm::vec3 tangent);
+    // static glm::vec3 checkerBump(const Scene* scene, int entity_id, int texture_id, 
+    //     float u, float v, glm::vec3 incident, glm::vec3 reflected, glm::vec3 normal, glm::vec3 tangent);
+    static glm::vec3 checkerBump(const Scene* scene, HitRecord hit_record, LightRecord light_record);
 };
 
 

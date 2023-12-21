@@ -182,30 +182,30 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
   return radiance;
 }
 
-glm::vec3 PathTracer::SampleHemisphere(glm::vec3 axis) const
-{
-  std::random_device rd;
-  std::default_random_engine eng(rd());
-  std::uniform_real_distribution<float> distr(0.0f, 1.0f);
-  glm::vec3 sampleDirection(0.0f);
-  while (glm::dot(sampleDirection, axis) == 0.0f) {
-    float radius = 1.0f;
-    float pi = glm::radians(180.0f);
-    float theta = distr(eng) * 2.0f * pi;
-    float phi = distr(eng) * 1.0f * pi;
+// glm::vec3 PathTracer::SampleHemisphere(glm::vec3 axis) const
+// {
+//   std::random_device rd;
+//   std::default_random_engine eng(rd());
+//   std::uniform_real_distribution<float> distr(0.0f, 1.0f);
+//   glm::vec3 sampleDirection(0.0f);
+//   while (glm::dot(sampleDirection, axis) == 0.0f) {
+//     float radius = 1.0f;
+//     float pi = glm::radians(180.0f);
+//     float theta = distr(eng) * 2.0f * pi;
+//     float phi = distr(eng) * 1.0f * pi;
 
-    // Convert spherical coordinates to Cartesian coordinates
-    float x = radius * glm::sin(phi) * glm::cos(theta);
-    float y = radius * glm::sin(phi) * glm::sin(theta);
-    float z = radius * glm::cos(phi);
+//     // Convert spherical coordinates to Cartesian coordinates
+//     float x = radius * glm::sin(phi) * glm::cos(theta);
+//     float y = radius * glm::sin(phi) * glm::sin(theta);
+//     float z = radius * glm::cos(phi);
 
-    sampleDirection = glm::vec3(x, y, z);
-    if (glm::dot(sampleDirection, axis) < 0.0f) {
-      sampleDirection = -sampleDirection;
-    }
-  }
-  return sampleDirection;
-}
+//     sampleDirection = glm::vec3(x, y, z);
+//     if (glm::dot(sampleDirection, axis) < 0.0f) {
+//       sampleDirection = -sampleDirection;
+//     }
+//   }
+//   return sampleDirection;
+// }
 
 // float PathTracer::genRanFloat() const
 // {
@@ -217,33 +217,84 @@ glm::vec3 PathTracer::SampleHemisphere(glm::vec3 axis) const
 
 
 
-glm::vec3 PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type) const
-{
-  if( material_type == MATERIAL_TYPE_LAMBERTIAN ) {
-    // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f));
-    return glm::vec3( 1.0f / glm::radians(180.0f) );
-  } 
-  else if (material_type == MATERIAL_TYPE_EMISSION) {
-    // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f));
-    return glm::vec3(1.0f);
+// glm::vec3 PathTracer::BSDF(glm::vec3 reflection, glm::vec3 normal, glm::vec3 incidence, MaterialType material_type) const
+// {
+//   if( material_type == MATERIAL_TYPE_LAMBERTIAN ) {
+//     // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f) * std::max( glm::dot(-incidence, normal), 0.0f));
+//     return glm::vec3( 1.0f / glm::radians(180.0f) );
+//   } 
+//   else if (material_type == MATERIAL_TYPE_EMISSION) {
+//     // return glm::vec3(std::max( glm::dot(reflection, normal), 0.0f));
+//     return glm::vec3(1.0f);
+//   }
+//   else {
+//     return glm::vec3(1.0f);
+//   }
+// }
+
+// glm::vec3 PathTracer::nodeBSDF(
+//     ShaderPreset shader_preset,
+//     const Scene* scene, int entity_id, int texture_id, 
+//     float u, float v, glm::vec3 incident, glm::vec3 reflected, 
+//     glm::vec3 normal, glm::vec3 tangent, glm::vec3 position
+// ) const {
+//   if(shader_preset == CheckerBump){
+//     return Presets::checkerBump(scene, entity_id, texture_id, u, v, incident, reflected, normal, tangent);
+//   }
+//   else {
+//     return glm::vec3(0.5f);
+//   }
+// }
+
+glm::vec3 PathTracer::importanceSample(HitRecord hit_record, 
+      glm::vec3 reflection, MaterialType material_type) const {
+
+  if(material_type == MATERIAL_TYPE_LAMBERTIAN) {
+    float theta = genRandFloat(0, PI);
+    float phi = genRandFloat(0, 2 * PI);
+    glm::vec3 sample_direction = glm::vec3(
+      glm::sin(theta) * glm::cos(phi),
+      glm::sin(theta) * glm::sin(phi),
+      glm::cos(theta)
+    );
+    glm::vec3 geo_normal = hit_record.geometry_normal;
+    if(glm::dot(sample_direction, geo_normal) < 0.0f) {
+      sample_direction = -sample_direction;
+    }
+    return sample_direction;
   }
-  else {
-    return glm::vec3(1.0f);
+
+  else if( material_type == MATERIAL_TYPE_GLASS ) {
+    auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+    auto IOR = material.IOR;
+    bool in_glass = glm::dot(hit_record.geometry_normal, hit_record.normal) > 0.0f;
+    if(in_glass) {
+      return glm::refract(-reflection, -hit_record.geometry_normal, IOR);
+    } else {
+      return glm::refract(-reflection, hit_record.geometry_normal, 1.0f / IOR);
+    }
   }
+
+  else if( material_type == MATERIAL_TYPE_SPECULAR ) {
+    return glm::reflect(-reflection, hit_record.geometry_normal);
+  }
+
 }
 
-glm::vec3 PathTracer::nodeBSDF(
-    ShaderPreset shader_preset,
-    const Scene* scene, int entity_id, int texture_id, 
-    float u, float v, glm::vec3 incident, glm::vec3 reflected, 
-    glm::vec3 normal, glm::vec3 tangent
-) const {
-  if(shader_preset == CheckerBump){
-    return Presets::checkerBump(scene, entity_id, texture_id, u, v, incident, reflected, normal, tangent);
+glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, 
+      LightRecord light_record, ShaderPreset shader_preset) const {
+
+  if(shader_preset == ShaderPreset::Lambertian){
+    auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+    auto albedo = material.albedo_color;
+    auto texture = glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(hit_record.tex_coord)};
+    return albedo * texture / PI;
   }
-  else {
-    return glm::vec3(0.5f);
+
+  else if(shader_preset == ShaderPreset::CheckerBump) {
+    return Presets::checkerBump(scene, hit_record, light_record);
   }
+
 }
 
 }  // namespace sparks

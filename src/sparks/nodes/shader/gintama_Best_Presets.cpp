@@ -2,8 +2,18 @@
 
 namespace sparks {
 
-glm::vec3 Presets::checkerBump(const Scene* scene, int entity_id, int texture_id, 
-    float u, float v, glm::vec3 incident, glm::vec3 reflected, glm::vec3 normal, glm::vec3 tangent) { // geo normal
+// glm::vec3 Presets::checkerBump(const Scene* scene, int entity_id, int texture_id, 
+//     float u, float v, glm::vec3 incident, glm::vec3 reflected, glm::vec3 normal, glm::vec3 tangent) { // geo normal
+glm::vec3 Presets::checkerBump(const Scene* scene, HitRecord hit_record,
+    LightRecord light_record){
+    int entity_id = hit_record.hit_entity_id;
+    int texture_id = scene->GetEntity(entity_id).GetMaterial().albedo_texture_id;
+    glm::vec3 normal = hit_record.normal;
+    glm::vec3 tangent = hit_record.tangent;
+    float u = hit_record.tex_coord.x;
+    float v = hit_record.tex_coord.y;
+    glm::vec3 incident = light_record.incident;
+    glm::vec3 reflected = light_record.reflected;
     TextureSample texSamp(scene, entity_id, texture_id, u, v);
     Checker checker;
     // setFloat(checker.getInput(2), 2.0f);
