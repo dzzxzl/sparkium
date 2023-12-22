@@ -9,19 +9,20 @@ namespace sparks {
 
 class Checker: public Node {
  public:
-  Checker();
+  Checker() = delete;
+  Checker(SceneInfo* scene_info);
   ~Checker() override;
   void process() override;
-  // void Update() override;
-  // void Draw() override;
-  // void DrawImGui() override;
-  // in slot 0 color1_
-  // in slot 1 color2_
-  // in slot 2 scale_
-  // out slot 0 color_
-  // out slot 1 gradient_
-  float u_{0.0f};
-  float v_{0.0f};
+  enum class InSlotName {
+    Color1 = 0,
+    Color2,
+    Scale
+  };
+  enum class OutSlotName {
+    Color = 0,
+    Gradient
+  };
+  SceneInfo* scene_info_;
 };
 
 } // namespace sparks

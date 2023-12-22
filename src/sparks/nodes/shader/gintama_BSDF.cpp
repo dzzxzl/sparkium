@@ -3,14 +3,14 @@
 
 namespace sparks {
 
-DiffuseBSDF::DiffuseBSDF()
+DiffuseBSDF::DiffuseBSDF( SceneInfo* scene_info): scene_info_(scene_info)
 {
     in_slots_.resize(2);
     out_slots_.resize(1);
-    in_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
-    in_slots_[1] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
-    out_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
-    out_slots_[0]->slotType_ = Slot::SlotType::output;
+    in_slots_[slotID(InSlotName::Color)] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
+    in_slots_[slotID(InSlotName::Normal)] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
+    out_slots_[slotID(OutSlotName::Color)] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
+    out_slots_[slotID(OutSlotName::Color)]->slotType_ = Slot::SlotType::output;
 }
 DiffuseBSDF::~DiffuseBSDF() {
     for (auto& slot : in_slots_) {
@@ -28,8 +28,10 @@ void DiffuseBSDF::process() {
         }
     }
     // process current node
-    glm::vec3 normal = static_cast<Vec3Slot*>(in_slots_[1])->value_;
-    glm::vec3 in_color = static_cast<Vec3Slot*>(in_slots_[0])->value_;
+    glm::vec3 normal = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Normal) ])->value_;
+    glm::vec3 in_color = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Color) ])->value_;
+    glm::vec3 incident_ = scene_info_->light_record_.incident;
+    glm::vec3 reflected_ = scene_info_->light_record_.reflected;
 
     float diffusive_factor = std::max( glm::dot(reflected_, normal), 0.0f) * std::max( glm::dot(-incident_, normal), 0.0f);
     glm::vec3 res_color = diffusive_factor * in_color;

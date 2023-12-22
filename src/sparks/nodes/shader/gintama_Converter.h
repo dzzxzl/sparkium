@@ -9,14 +9,14 @@ class MixShader: public Node {
  public:
   MixShader();
   ~MixShader() override;
-  // void process() override;
-  // void Update() override;
-  // void Draw() override;
-  // void DrawImGui() override;
-  // in slot 0 is factor
-  // in slot 1 is color1
-  // in slot 2 is color2
-  // out slot 0 is color
+  enum class InSlotName {
+    Factor = 0,
+    Color1,
+    Color2
+  };
+  enum class OutSlotName {
+    Color = 0
+  };
 };
 
 class Multiplier: public Node {
@@ -24,12 +24,13 @@ class Multiplier: public Node {
   Multiplier();
   ~Multiplier() override;
   void process() override;
-  // void Update() override;
-  // void Draw() override;
-  // void DrawImGui() override;
-  // in slot 0 is color1
-  // in slot 1 is color2
-  // out slot 0 is color
+  enum class InSlotName {
+    Color1 = 0,
+    Color2
+  };
+  enum class OutSlotName {
+    Color = 0
+  };
 };
 
 } // namespace sparks

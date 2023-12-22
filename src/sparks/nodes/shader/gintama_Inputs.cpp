@@ -12,10 +12,7 @@ AmbientOcclusion::AmbientOcclusion() {
 
 }
 
-TextureSample::TextureSample(const Scene *scene,
-                            int entity_id,
-                            int texture_id, float u, float v):
-                            scene_(scene), entity_id_(entity_id), texture_id_(texture_id), u_(u), v_(v) {
+TextureSample::TextureSample( SceneInfo* scene_info): scene_info_(scene_info) {
     out_slots_.resize(1);
     out_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     out_slots_[0]->slotType_ = Slot::SlotType::output;
@@ -29,6 +26,11 @@ TextureSample::~TextureSample() {
 
 void TextureSample::process() {
     // just sample
+    auto scene_ = scene_info_->scene_;
+    auto entity_id = scene_info_->hit_record_.hit_entity_id;
+    auto texture_id_ = scene_->GetEntity(entity_id).GetMaterial().albedo_texture_id;
+    auto u_ = scene_info_->hit_record_.tex_coord.x;
+    auto v_ = scene_info_->hit_record_.tex_coord.y;
     glm::vec3 sample( scene_->GetTextures()[texture_id_].Sample({u_,v_}) );
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = sample;
     // push to next node

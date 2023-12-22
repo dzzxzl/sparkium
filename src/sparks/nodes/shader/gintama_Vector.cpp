@@ -3,7 +3,7 @@
 
 namespace sparks {
 
-Bump::Bump()
+Bump::Bump( SceneInfo* scene_info ): scene_info_(scene_info)
 {
     in_slots_.resize(4);
     out_slots_.resize(1);
@@ -34,6 +34,9 @@ void Bump::process() {
     int type = static_cast<EnumSlot*>(in_slots_[1])->value_;
     glm::vec3 height = static_cast<Vec3Slot*>(in_slots_[2])->value_;
     glm::vec3 grad = static_cast<Vec3Slot*>(in_slots_[3])->value_;
+    auto tangent_ = scene_info_->hit_record_.tangent;
+    auto normal_ = scene_info_->hit_record_.geometry_normal;
+    auto reflection_ = scene_info_->light_record_.reflected;
     glm::vec3 e_v = glm::normalize( glm::cross(tangent_, normal_) );
     glm::vec3 e_u = glm::normalize( glm::cross( normal_, e_v ) );
     glm::vec3 out_normal = normal_;
@@ -68,6 +71,7 @@ Color::Color(glm::vec3 color): color_(color)
     out_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
     out_slots_[0]->slotType_ = Slot::SlotType::output;
 }
+
 
 Color::~Color() {
     for (auto& slot : out_slots_) {

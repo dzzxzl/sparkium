@@ -3,7 +3,7 @@
 
 namespace sparks{
 
-Checker::Checker()
+Checker::Checker( SceneInfo* scene_info): scene_info_(scene_info)
 {
     in_slots_.resize(3);
     out_slots_.resize(2);
@@ -43,6 +43,15 @@ void Checker::process() {
     float grid_w = 1.0f / scale;
 
     float dx = grid_w / 20.0f;
+
+    auto u_ = scene_info_->hit_record_.tex_coord.x;
+    auto v_ = scene_info_->hit_record_.tex_coord.y;
+    auto entity_id = scene_info_->hit_record_.hit_entity_id;
+    auto texture_id_ = scene_info_->scene_->GetEntity(entity_id).GetMaterial().albedo_texture_id;
+    auto texture_width = scene_info_->scene_->GetTexture(texture_id_).GetWidth();
+    auto texture_height = scene_info_->scene_->GetTexture(texture_id_).GetHeight();
+    u_ = u_ / texture_width;
+    v_ = v_ / texture_height;
 
     int grid_x = std::floor(u_ / grid_w);
     int grid_xdx = std::floor((u_ + dx) / grid_w);

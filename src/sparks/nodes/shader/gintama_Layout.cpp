@@ -6,10 +6,6 @@ namespace sparks{
 int Node::next_id_ = 0;
 
 void Node::link(Node* next_node, int out_slot_id, int in_slot_id){
-    // in_slots_[in_slot_id]->nextNode_ = next_node;
-    // in_slots_[in_slot_id]->nextSlotId_ = out_slot_id;
-    // next_node->in_slots_[out_slot_id]->lastNode_ = this;
-    // next_node->in_slots_[out_slot_id]->lastSlotId_ = in_slot_id;
     out_slots_[out_slot_id]->nextNode_ = next_node;
     out_slots_[out_slot_id]->nextSlotId_ = in_slot_id;
     next_node->in_slots_[in_slot_id]->lastNode_ = this;
@@ -46,6 +42,9 @@ void getVec3(Slot* slot){
 
 void getEnum(Slot* slot){
     static_cast<EnumSlot*>(slot)->value_;
+}
+
+SceneInfo::SceneInfo(const Scene* scene, HitRecord hit_record, LightRecord light_record): scene_(scene), hit_record_(hit_record), light_record_(light_record){
 }
 
 

@@ -7,17 +7,20 @@ namespace sparks {
 
 class DiffuseBSDF: public Node {
  public:
-  DiffuseBSDF();
+  DiffuseBSDF() = delete;
+  DiffuseBSDF(SceneInfo* scene_info);
   ~DiffuseBSDF() override;
-  // void Update() override;
-  // void Draw() override;
-  // void DrawImGui() override;
+  enum class InSlotName {
+    Color = 0,
+    Normal
+  };
+  enum class OutSlotName {
+    Color = 0
+  };
   void process() override;
-  // in slot 0 is color
-  // in slot 1 is normal
-  // out slot 0 is color
-  glm::vec3 incident_{0.0f, 0.0f, 0.0f};
-  glm::vec3 reflected_{0.0f, 0.0f, 0.0f};
+  SceneInfo* scene_info_;
+  int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+  int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
 };
 
 

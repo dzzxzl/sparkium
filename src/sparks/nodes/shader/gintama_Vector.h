@@ -7,23 +7,23 @@ namespace sparks {
 
 class Bump: public Node {
  public:
-  Bump();
+  Bump() = delete;
+  Bump(SceneInfo* scene_info);
   ~Bump() override;
-  // void Update() override;
-  // void Draw() override;
-  // void DrawImGui() override;
   enum BumpType {
     Height = 0, Normal = 1
   };
-  // in slot 0 is scale
-  // in slot 1 is bump type
-  // in slot 2 is height
-  // in slot 3 is gradient
-  // out slot 0 is out normal
+  enum class InSlotName {
+    Scale = 0,
+    BumpType,
+    Height,
+    Gradient
+  };
+  enum class OutSlotName {
+    Normal = 0
+  };
   void process() override;
-  glm::vec3 normal_{0.0f, 0.0f, 0.0f};
-  glm::vec3 tangent_{0.0f, 0.0f, 0.0f};
-  glm::vec3 reflection_{0.0f, 0.0f, 0.0f};
+  SceneInfo* scene_info_;
 };
 
 class Color: public Node {
@@ -31,15 +31,12 @@ class Color: public Node {
   Color() = delete;
   Color(glm::vec3 color);
   ~Color() override;
-  // void Update() override;
-  // void Draw() override;
-  // void DrawImGui() override;
-  // out slot 0 is color
+  enum class OutSlotName {
+    Color = 0
+  };
   void process() override;
   glm::vec3 color_{0.0f, 0.0f, 0.0f};
 };
-
-
 
 
 } // namespace sparks
