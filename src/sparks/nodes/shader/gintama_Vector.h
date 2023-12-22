@@ -10,7 +10,7 @@ class Bump: public Node {
   Bump() = delete;
   Bump(SceneInfo* scene_info);
   ~Bump() override;
-  enum BumpType {
+  enum class BumpType {
     Height = 0, Normal = 1
   };
   enum class InSlotName {

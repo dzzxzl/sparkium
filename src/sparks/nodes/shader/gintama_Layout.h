@@ -12,6 +12,7 @@ class Node;
 class SceneInfo {
   public:
    SceneInfo(const Scene* scene, HitRecord hit_record, LightRecord light_record);
+   ~SceneInfo() = default;
    const Scene* scene_;
    HitRecord hit_record_;
    LightRecord light_record_;
@@ -75,9 +76,8 @@ class Node {
 void setFloat(Slot* slot, float value);
 void setVec3(Slot* slot, glm::vec3 value);
 void setEnum(Slot* slot, int value);
-void getFloat(Slot* slot);
-void getVec3(Slot* slot);
-void getEnum(Slot* slot);
-
+float getFloat(Slot* slot);
+glm::vec3 getVec3(Slot* slot);
+int getEnum(Slot* slot);
 
 } // namespace sparks

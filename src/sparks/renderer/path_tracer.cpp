@@ -123,7 +123,8 @@ glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, Ligh
   }
 
   else if(shader_preset == ShaderPreset::CheckerBump) {
-    return Presets::checkerBump(scene, hit_record, light_record);
+    SceneInfo* scene_info = new SceneInfo{scene, hit_record, light_record};
+    return Presets::checkerBump(scene_info);
   }
 
 }

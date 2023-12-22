@@ -32,16 +32,16 @@ void setEnum(Slot* slot, int value){
     static_cast<EnumSlot*>(slot)->value_ = value;
 }
 
-void getFloat(Slot* slot){
-    static_cast<FloatSlot*>(slot)->value_;
+float getFloat(Slot* slot){
+    return static_cast<FloatSlot*>(slot)->value_;
 }
 
-void getVec3(Slot* slot){
-    static_cast<Vec3Slot*>(slot)->value_;
+glm::vec3 getVec3(Slot* slot){
+    return static_cast<Vec3Slot*>(slot)->value_;
 }
 
-void getEnum(Slot* slot){
-    static_cast<EnumSlot*>(slot)->value_;
+int getEnum(Slot* slot){
+    return static_cast<EnumSlot*>(slot)->value_;
 }
 
 SceneInfo::SceneInfo(const Scene* scene, HitRecord hit_record, LightRecord light_record): scene_(scene), hit_record_(hit_record), light_record_(light_record){
