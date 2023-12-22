@@ -35,21 +35,17 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         break;
       }
       // Glass or specular material
-      else if (material.material_type == MATERIAL_TYPE_GLASS ||
-        material.material_type == MATERIAL_TYPE_SPECULAR) {
+      else if (material.material_type == MATERIAL_TYPE_GLASS || material.material_type == MATERIAL_TYPE_SPECULAR) {
         origin = hit_record.position;
-        direction = importanceSample(hit_record, -direction, MATERIAL_TYPE_GLASS);
+        direction = importanceSample(hit_record, -direction, material.material_type);
       }
       // Non-transmissive material
       else if (
-        material.material_type == MATERIAL_TYPE_LAMBERTIAN
-        || material.material_type == MATERIAL_TYPE_CHECKERBUMP) {
+        material.material_type == MATERIAL_TYPE_LAMBERTIAN || material.material_type == MATERIAL_TYPE_CHECKERBUMP) {
         origin = hit_record.position;
-        // environment light TODO
-        // here
         auto shader_preset = getShaderPreset(material.material_type);
         sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
-        break;
+        // break;
         auto old_direction = direction;
         direction = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
         throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(-old_direction, hit_record.geometry_normal), 0.0f) * 2.0f * PI / GINTAMA_P_RR;
