@@ -36,6 +36,11 @@ void Bump::process() {
     glm::vec3 grad = static_cast<Vec3Slot*>(in_slots_[3])->value_;
     auto tangent_ = scene_info_->hit_record_.tangent;
     auto normal_ = scene_info_->hit_record_.geometry_normal;
+    auto material = scene_info_->scene_->GetEntity(scene_info_->hit_record_.hit_entity_id).GetMaterial();
+    auto shade_smooth = material.shade_smooth;
+    if(shade_smooth) {
+        normal_ = scene_info_->hit_record_.normal;
+    }
     auto reflection_ = scene_info_->light_record_.reflected;
     glm::vec3 e_v = glm::normalize( glm::cross(tangent_, normal_) );
     glm::vec3 e_u = glm::normalize( glm::cross( normal_, e_v ) );

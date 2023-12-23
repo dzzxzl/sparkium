@@ -29,6 +29,11 @@ void DiffuseBSDF::process() {
     }
     // process current node
     glm::vec3 normal = scene_info_->hit_record_.geometry_normal;
+    auto material = scene_info_->scene_->GetEntity(scene_info_->hit_record_.hit_entity_id).GetMaterial();
+    auto shade_smooth = material.shade_smooth;
+    if(shade_smooth) {
+        normal = scene_info_->hit_record_.normal;
+    }
     if(in_slots_[ slotID(InSlotName::Normal) ]->lastNode_ != nullptr) {
         normal = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Normal) ])->value_;
     }

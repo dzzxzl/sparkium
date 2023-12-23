@@ -29,14 +29,18 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       // get material
       auto &material =
           scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
-      // Emission material
       // some tests
       // if(hit_record.geometry_normal.x < 0.0f) {
       //   return glm::vec3(1.0f, 0.0f, 0.0f);
       // } else {
       //   return glm::vec3(0.0f);
       // }
-
+      // auto smooth_normal = hit_record.normal;
+      // auto geo_normal = hit_record.geometry_normal;
+      // if(glm::length(smooth_normal - geo_normal) < 1e-3f) {
+      //   return glm::vec3(1.0f, 0.0f, 0.0f);
+      // }
+      // Emission material
       if (material.material_type == MATERIAL_TYPE_EMISSION) {
         radiance += throughput * material.emission * material.emission_strength;
         break;
@@ -78,7 +82,11 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       }
     } else {
       // hit environment
+      auto envmap_color = glm::vec3(scene_->SampleEnvmap(direction));
       radiance += throughput * glm::vec3{scene_->SampleEnvmap(direction)};
+      if(glm::length(envmap_color) < 1e-3f) {
+        radiance += throughput * scene_->worldColor;
+      }
       break;
     }
   }

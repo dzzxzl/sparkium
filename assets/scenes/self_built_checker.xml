@@ -49,8 +49,9 @@
             <translation value="0.0 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
-        <material type="glass">
+        <material type="checkerBump">
             <albedo value="1.0 1.0 1.0"/>
+            <shade_smooth value="1"/>
         </material>
     </model>
 
