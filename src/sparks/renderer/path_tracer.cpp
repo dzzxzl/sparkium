@@ -45,6 +45,9 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       else if (material.material_type == MATERIAL_TYPE_GLASS || material.material_type == MATERIAL_TYPE_SPECULAR) {
         origin = hit_record.position;
         direction = importanceSample(hit_record, -direction, material.material_type);
+        if(glm::length(direction) < 1e-3f) {
+          break;
+        }
       }
       // Non-transmissive material
       else if (
@@ -111,6 +114,7 @@ glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
       R_0 = R_0 * R_0;
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
+        // return glm::vec3(0.0f);
         return glm::reflect(-reflection, hit_record.geometry_normal);
       }
       if(genRandFloat(0,1) < R) {
@@ -124,6 +128,7 @@ glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
       R_0 = R_0 * R_0;
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
+        // return glm::vec3(0.0f);
         return glm::reflect(-reflection, hit_record.geometry_normal);
       }
       if(genRandFloat(0,1) < R) {

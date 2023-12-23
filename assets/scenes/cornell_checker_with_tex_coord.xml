@@ -190,7 +190,7 @@
             <translation value="153 80 168"/>
             <rotation value="0 0 0"/>
         </transform>
-        <material type="specular">
+        <material type="glass">
             <albedo value="1 1 1"/>
             <inverse_normal value="1"/>
         </material>
