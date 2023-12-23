@@ -55,7 +55,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       }
       // Non-transmissive material
       else if (
-        material.material_type == MATERIAL_TYPE_LAMBERTIAN || material.material_type == MATERIAL_TYPE_CHECKERBUMP) {
+        material.material_type == MATERIAL_TYPE_LAMBERTIAN || material.material_type == MATERIAL_TYPE_CHECKERBUMP || material.material_type == MATERIAL_TYPE_CHECKER_A) {
         origin = hit_record.position;
         auto shader_preset = getShaderPreset(material.material_type);
         sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
@@ -232,6 +232,9 @@ PathTracer::ShaderPreset PathTracer::getShaderPreset(MaterialType material_type)
   }
   else if(material_type == MATERIAL_TYPE_CHECKERBUMP) {
     return ShaderPreset::CheckerBump;
+  }
+  else if(material_type == MATERIAL_TYPE_CHECKER_A) {
+    return ShaderPreset::Checker_A;
   }
 }
 

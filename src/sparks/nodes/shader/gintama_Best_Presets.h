@@ -15,6 +15,7 @@ class Presets {
     Presets() = default;
     ~Presets() = default;
     static glm::vec3 checkerBump(SceneInfo* scene_info);
+    static glm::vec3 checkerA(SceneInfo* scene_info);
 };
 
 

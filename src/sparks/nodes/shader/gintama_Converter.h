@@ -19,6 +19,8 @@ class MixShader: public Node {
   };
   int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
   int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
+  Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
+  Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
 };
 
 class Multiplier: public Node {
@@ -35,6 +37,8 @@ class Multiplier: public Node {
   };
   int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
   int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
+  Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
+  Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
 };
 
 } // namespace sparks

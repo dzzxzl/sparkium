@@ -18,7 +18,8 @@ class PathTracer {
     Specular,
     Glass,
     Emission,
-    CheckerBump
+    CheckerBump,
+    Checker_A
   };
   PathTracer(const RendererSettings *render_settings, const Scene *scene);
   [[nodiscard]] glm::vec3 SampleRay(glm::vec3 origin,

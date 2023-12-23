@@ -23,4 +23,12 @@ glm::vec3 Presets::checkerBump(SceneInfo* scene_info) {
     return res;
 }
 
+glm::vec3 Presets::checkerA(SceneInfo* scene_info) {
+    Checker checker(scene_info);
+    setVec3(checker.getInSlot( Checker::InSlotName::Color1 ), glm::vec3(0.8f, 0.0f, 0.0f) );
+    setVec3(checker.getInSlot( Checker::InSlotName::Color2 ), glm::vec3(0.0f, 0.8f, 0.0f) );
+    glm::vec3 res = getVec3( checker.getOutSlot( Checker::OutSlotName::Color ) );
+    return res;
+}
+
 }

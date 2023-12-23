@@ -11,8 +11,6 @@ class AmbientOcclusion: public Node {
   AmbientOcclusion();
   ~AmbientOcclusion() override = default;
   float depth_{1.0f};
-  // int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
-  // int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
 };
 
 class TextureSample: public Node {
@@ -26,7 +24,7 @@ class TextureSample: public Node {
   };
   SceneInfo* scene_info_;
   int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
-  // int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
+  Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
 };
 
 }

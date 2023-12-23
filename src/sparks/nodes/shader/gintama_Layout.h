@@ -69,8 +69,6 @@ class Node {
   std::vector<Slot*> in_slots_;
   std::vector<Slot*> out_slots_;
   void link(Node* next_node, int out_slot_id, int in_slot_id);
-  Slot* getOutput(int out_slot_id);
-  Slot* getInput(int in_slot_id);
 };
 
 void setFloat(Slot* slot, float value);

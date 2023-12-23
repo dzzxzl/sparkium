@@ -12,14 +12,6 @@ void Node::link(Node* next_node, int out_slot_id, int in_slot_id){
     next_node->in_slots_[in_slot_id]->lastSlotId_ = out_slot_id;
 }
 
-Slot* Node::getOutput(int out_slot_id){
-    return out_slots_[out_slot_id];
-}
-
-Slot* Node::getInput(int in_slot_id){
-    return in_slots_[in_slot_id];
-}
-
 void setFloat(Slot* slot, float value){
     static_cast<FloatSlot*>(slot)->value_ = value;
 }

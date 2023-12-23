@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scene>
+
+    <camera>
+        <transform type="lookat">
+            <eye value="-693 0 0"/>
+            <center value="0.0 0.0 0.0"/>
+            <up value="0.0 1.0 0.0"/>
+        </transform>
+        <fov value="50"/>
+        <speed value="100"/>
+    </camera>
+
+    <model name="Area">
+        <vertex position="-363 -100 -615"/>
+        <vertex position="363 100 -615"/>
+        <vertex position="197 100 -727"/>
+        <vertex position="197 -100 -727"/>
+
+        <index value="0"/>
+        <index value="1"/>
+        <index value="3"/>
+        <index value="3"/>
+        <index value="1"/>
+        <index value="2"/>
+
+        <material type="emission">
+            <emission value="1.0 1.0 1.0"/>
+            <emission_strength value="100.0"/>
+        </material>
+    </model>
+
+    
+    <model type="obj" name="Plane">
+        <filename value="../../meshes/3-plane.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="checker_A">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+        </material>
+    </model>
+
+    <model type="obj" name="Sphere">
+        <filename value="../../meshes/3-sphere.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="glass">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+        </material>
+    </model>
+
+</scene>
