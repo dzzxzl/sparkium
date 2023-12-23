@@ -26,7 +26,7 @@
 
         <material type="emission">
             <emission value="1.0 1.0 1.0"/>
-            <emission_strength value="1000.0"/>
+            <emission_strength value="100.0"/>
         </material>
     </model>
 
