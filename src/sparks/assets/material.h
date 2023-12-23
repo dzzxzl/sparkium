@@ -26,10 +26,13 @@ struct Material {
   MaterialType material_type{MATERIAL_TYPE_LAMBERTIAN};
   float IOR{1.5f};
   bool inverse_normal{false};
-  bool reserve[3]{};
-  // float reserve[2]{};
+  bool shade_smooth{false};
+  bool reserve[2]{};
+  float pad[4]{};
   Material() = default;
   explicit Material(const glm::vec3 &albedo);
   Material(Scene *scene, const tinyxml2::XMLElement *material_element);
 };
+
+
 }  // namespace sparks
