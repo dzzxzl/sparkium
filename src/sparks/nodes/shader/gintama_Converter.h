@@ -17,6 +17,8 @@ class MixShader: public Node {
   enum class OutSlotName {
     Color = 0
   };
+  int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+  int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
 };
 
 class Multiplier: public Node {
@@ -31,6 +33,8 @@ class Multiplier: public Node {
   enum class OutSlotName {
     Color = 0
   };
+  int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+  int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
 };
 
 } // namespace sparks

@@ -19,8 +19,8 @@
         <index value="0"/>
         <index value="1"/>
         <index value="3"/>
-        <index value="1"/>
         <index value="3"/>
+        <index value="1"/>
         <index value="2"/>
 
         <material type="emission">
@@ -111,8 +111,8 @@
         <index value="1"/>
         <index value="3"/>
         <index value="1"/>
-        <index value="3"/>
         <index value="2"/>
+        <index value="3"/>
 
         <material type="lambertian">
             <albedo value="0.8 0.0 0.0"/>
@@ -187,11 +187,12 @@
         <filename value="../../meshes/oh_this_is_not_an_ordinary_cube.obj"/>
         <transform type="world">
             <scale value="80 80 80"/>
-            <translation value="172 80 168"/>
+            <translation value="153 80 168"/>
             <rotation value="0 0 0"/>
         </transform>
-        <material type="lambertian">
+        <material type="specular">
             <albedo value="1 1 1"/>
+            <inverse_normal value="1"/>
         </material>
     </model>
 
@@ -253,7 +254,7 @@
         <index value="19"/>
         <index value="18"/>
 
-        <material type="specular">
+        <material type="checkerBump">
             <albedo value="1 1 1"/>
         </material>
     </model>

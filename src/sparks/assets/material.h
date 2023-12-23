@@ -25,7 +25,8 @@ struct Material {
   float alpha{1.0f};
   MaterialType material_type{MATERIAL_TYPE_LAMBERTIAN};
   float IOR{1.5f};
-  float reserve[1]{};
+  bool inverse_normal{false};
+  bool reserve[3]{};
   // float reserve[2]{};
   Material() = default;
   explicit Material(const glm::vec3 &albedo);

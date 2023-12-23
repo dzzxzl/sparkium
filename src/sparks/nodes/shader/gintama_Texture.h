@@ -23,6 +23,8 @@ class Checker: public Node {
     Gradient
   };
   SceneInfo* scene_info_;
+  int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+  int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
 };
 
 } // namespace sparks

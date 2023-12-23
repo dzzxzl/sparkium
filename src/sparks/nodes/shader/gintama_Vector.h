@@ -24,6 +24,8 @@ class Bump: public Node {
   };
   void process() override;
   SceneInfo* scene_info_;
+  int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+  int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
 };
 
 class Color: public Node {
@@ -36,6 +38,8 @@ class Color: public Node {
   };
   void process() override;
   glm::vec3 color_{0.0f, 0.0f, 0.0f};
+  int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+  // int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
 };
 
 

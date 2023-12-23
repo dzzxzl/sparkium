@@ -22,4 +22,6 @@ float genRandFloat(float low, float high);
 
 int genRandInt(int low, int high);
 
+// glm::vec3 good_refraction(glm::vec3 incident, glm::vec3 normal, float ior);
+
 }  // namespace sparks

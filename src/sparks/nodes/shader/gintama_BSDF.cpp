@@ -28,13 +28,22 @@ void DiffuseBSDF::process() {
         }
     }
     // process current node
-    glm::vec3 normal = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Normal) ])->value_;
-    glm::vec3 in_color = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Color) ])->value_;
+    glm::vec3 normal = scene_info_->hit_record_.geometry_normal;
+    if(in_slots_[ slotID(InSlotName::Normal) ]->lastNode_ != nullptr) {
+        normal = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Normal) ])->value_;
+    }
+    glm::vec3 in_color = getVec3(in_slots_[ slotID(InSlotName::Color) ]);
     glm::vec3 incident_ = scene_info_->light_record_.incident;
     glm::vec3 reflected_ = scene_info_->light_record_.reflected;
 
-    float diffusive_factor = std::max( glm::dot(reflected_, normal), 0.0f) * std::max( glm::dot(-incident_, normal), 0.0f);
-    glm::vec3 res_color = diffusive_factor * in_color;
+    glm::vec3 res_color = in_color / PI;
+
+    float diffusive_factor = std::max(glm::dot(normal, -incident_), 0.0f) * std::max(glm::dot(normal, reflected_), 0.0f);
+
+    if (diffusive_factor == 0.0f) {
+        res_color = glm::vec3(0.0f);
+    }
+
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = res_color;
     // push to next node
     if(out_slots_[0]->nextNode_ != nullptr) {

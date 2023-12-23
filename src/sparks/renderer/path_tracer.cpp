@@ -3,7 +3,7 @@
 #include "sparks/util/util.h"
 #include "path_tracer.h"
 
-#define GINTAMA_P_RR 0.5f
+#define GINTAMA_P_RR 0.7f
 
 namespace sparks {
 PathTracer::PathTracer(const RendererSettings *render_settings,
@@ -30,6 +30,13 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       auto &material =
           scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
       // Emission material
+      // some tests
+      // if(hit_record.geometry_normal.x < 0.0f) {
+      //   return glm::vec3(1.0f, 0.0f, 0.0f);
+      // } else {
+      //   return glm::vec3(0.0f);
+      // }
+
       if (material.material_type == MATERIAL_TYPE_EMISSION) {
         radiance += throughput * material.emission * material.emission_strength;
         break;
@@ -45,10 +52,10 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         origin = hit_record.position;
         auto shader_preset = getShaderPreset(material.material_type);
         sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
-        // break;
+        break;
         auto old_direction = direction;
         direction = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
-        throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(-old_direction, hit_record.geometry_normal), 0.0f) * 2.0f * PI / GINTAMA_P_RR;
+        throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(-old_direction, hit_record.geometry_normal), 0.0f) * importanceSampleFactor(hit_record, -old_direction, material.material_type) / GINTAMA_P_RR;
         if(genRandFloat(0,1) > GINTAMA_P_RR){
           break;
         }
@@ -95,10 +102,33 @@ glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
   else if( material_type == MATERIAL_TYPE_GLASS ) {
     auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
     auto IOR = material.IOR;
-    bool in_glass = glm::dot(hit_record.geometry_normal, hit_record.normal) > 0.0f;
+    bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
+    // bool in_glass = glm::dot(-reflection, hit_record.geometry_normal) > 0.0f;
     if(in_glass) {
-      return glm::refract(-reflection, -hit_record.geometry_normal, IOR);
+      float cos_theta = glm::dot(reflection, hit_record.geometry_normal);
+      float eta = IOR;
+      float R_0 = (1 - eta) / (1 + eta);
+      R_0 = R_0 * R_0;
+      float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
+      if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
+        return glm::reflect(-reflection, hit_record.geometry_normal);
+      }
+      if(genRandFloat(0,1) < R) {
+        return glm::reflect(-reflection, hit_record.geometry_normal);
+      }
+      return glm::refract(-reflection, hit_record.geometry_normal, IOR);
     } else {
+      float cos_theta = glm::dot(reflection, hit_record.geometry_normal);
+      float eta = 1.0f / IOR;
+      float R_0 = (1 - eta) / (1 + eta);
+      R_0 = R_0 * R_0;
+      float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
+      if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
+        return glm::reflect(-reflection, hit_record.geometry_normal);
+      }
+      if(genRandFloat(0,1) < R) {
+        return glm::reflect(-reflection, hit_record.geometry_normal);
+      }
       return glm::refract(-reflection, hit_record.geometry_normal, 1.0f / IOR);
     }
   }
@@ -141,11 +171,14 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
         if(eme_hit_record.hit_entity_id != eme_iter) {
           continue;
         } else if(eme_hit_record.position != eme_origin) {
-          continue;
+          // continue; ?
         }
-        radiance += throughput * eme_material.emission * eme_material.emission_strength * pdf_area / (distance * distance)
+        radiance += throughput * eme_material.emission * eme_material.emission_strength 
+        * pdf_area / (distance * distance)
         * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
-        * surfaceBSDF(scene, hit_record, {-eme_direction, -reflection}, shader_preset);
+        * std::max(glm::dot(eme_direction, hit_record.geometry_normal), 0.0f)
+        * surfaceBSDF(scene, hit_record, {-eme_direction, reflection}, shader_preset)
+        ;
       }
     }
   }
@@ -158,7 +191,7 @@ void PathTracer::sampleEnv(const Scene* scene, HitRecord hit_record, glm::vec3 r
   radiance += throughput * scene_->GetEnvmapMinorColor();
   if (scene_->TraceRay(hit_record.position, direction_env, 1e-3f, 1e4f, nullptr) < 0.0f) {
     radiance += throughput * scene_->GetEnvmapMajorColor() * 
-      surfaceBSDF(scene, hit_record, {direction_env, reflection}, shader_preset);
+      surfaceBSDF(scene, hit_record, {-direction_env, reflection}, shader_preset);
   }
 
 }
@@ -168,6 +201,7 @@ float PathTracer::importanceSampleFactor(HitRecord hit_record, glm::vec3 reflect
   if(material_type == MATERIAL_TYPE_LAMBERTIAN || material_type == MATERIAL_TYPE_CHECKERBUMP) {
     return 2.0f * PI;
   }
+
 }
 
 PathTracer::ShaderPreset PathTracer::getShaderPreset(MaterialType material_type) {

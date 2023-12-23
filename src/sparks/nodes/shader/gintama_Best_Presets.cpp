@@ -6,10 +6,10 @@ glm::vec3 Presets::checkerBump(SceneInfo* scene_info) {
     TextureSample texSamp(scene_info);
     Checker checker(scene_info);
     Bump bump(scene_info);
-    DiffuseBSDF diffuse(scene_info);
+    Multiplier multiplier;
     auto entity_id = scene_info->hit_record_.hit_entity_id;
     Color color(scene_info->scene_->GetEntity(entity_id).GetMaterial().albedo_color);
-    Multiplier multiplier;
+    DiffuseBSDF diffuse(scene_info);
     setEnum(bump.in_slots_[1], 0);
     checker.link(&bump, 0, 2);
     checker.link(&bump, 1, 3);
@@ -17,6 +17,7 @@ glm::vec3 Presets::checkerBump(SceneInfo* scene_info) {
     texSamp.link(&multiplier, 0, 0);
     color.link(&multiplier, 0, 1);
     multiplier.link(&diffuse, 0, 0);
+    color.link(&diffuse, 0, 0);
     diffuse.process();
     glm::vec3 res = getVec3(diffuse.out_slots_[0]);
     return res;

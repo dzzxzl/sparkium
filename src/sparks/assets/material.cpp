@@ -61,6 +61,12 @@ Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
   if (child_element) {
     IOR = std::stof(child_element->FindAttribute("value")->Value());
   }
+
+  child_element = material_element->FirstChildElement("inverse_normal");
+  if (child_element) {
+    inverse_normal =
+        std::stoi(child_element->FindAttribute("value")->Value()) != 0;
+  }
   
   material_type =
       material_name_map[material_element->FindAttribute("type")->Value()];
