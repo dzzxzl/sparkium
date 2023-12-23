@@ -114,35 +114,39 @@ glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
     auto IOR = material.IOR;
     bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
+    glm::vec3 glass_normal = hit_record.geometry_normal;
+    if(material.shade_smooth){
+      glass_normal = hit_record.normal;
+    }
     // bool in_glass = glm::dot(-reflection, hit_record.geometry_normal) > 0.0f;
     if(in_glass) {
-      float cos_theta = glm::dot(reflection, hit_record.geometry_normal);
+      float cos_theta = glm::dot(reflection, glass_normal);
       float eta = IOR;
       float R_0 = (1 - eta) / (1 + eta);
       R_0 = R_0 * R_0;
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
         // return glm::vec3(0.0f);
-        return glm::reflect(-reflection, hit_record.geometry_normal);
+        return glm::reflect(-reflection, glass_normal);
       }
       if(genRandFloat(0,1) < R) {
-        return glm::reflect(-reflection, hit_record.geometry_normal);
+        return glm::reflect(-reflection, glass_normal);
       }
-      return glm::refract(-reflection, hit_record.geometry_normal, IOR);
+      return glm::refract(-reflection, glass_normal, IOR);
     } else {
-      float cos_theta = glm::dot(reflection, hit_record.geometry_normal);
+      float cos_theta = glm::dot(reflection, glass_normal);
       float eta = 1.0f / IOR;
       float R_0 = (1 - eta) / (1 + eta);
       R_0 = R_0 * R_0;
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
         // return glm::vec3(0.0f);
-        return glm::reflect(-reflection, hit_record.geometry_normal);
+        return glm::reflect(-reflection, glass_normal);
       }
       if(genRandFloat(0,1) < R) {
-        return glm::reflect(-reflection, hit_record.geometry_normal);
+        return glm::reflect(-reflection, glass_normal);
       }
-      return glm::refract(-reflection, hit_record.geometry_normal, 1.0f / IOR);
+      return glm::refract(-reflection, glass_normal, 1.0f / IOR);
     }
   }
 
@@ -164,6 +168,11 @@ glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, Ligh
   else if(shader_preset == ShaderPreset::CheckerBump) {
     SceneInfo* scene_info = new SceneInfo{scene, hit_record, light_record};
     return Presets::checkerBump(scene_info);
+  }
+
+  else if(shader_preset == ShaderPreset::Checker_A) {
+    SceneInfo* scene_info = new SceneInfo{scene, hit_record, light_record};
+    return Presets::checkerA(scene_info);
   }
 
 }
@@ -211,7 +220,7 @@ void PathTracer::sampleEnv(const Scene* scene, HitRecord hit_record, glm::vec3 r
 
 float PathTracer::importanceSampleFactor(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const {
 
-  if(material_type == MATERIAL_TYPE_LAMBERTIAN || material_type == MATERIAL_TYPE_CHECKERBUMP) {
+  if(material_type == MATERIAL_TYPE_LAMBERTIAN || material_type == MATERIAL_TYPE_CHECKERBUMP || material_type == MATERIAL_TYPE_CHECKER_A) {
     return 2.0f * PI;
   }
 

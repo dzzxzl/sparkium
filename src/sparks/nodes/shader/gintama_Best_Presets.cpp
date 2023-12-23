@@ -24,10 +24,12 @@ glm::vec3 Presets::checkerBump(SceneInfo* scene_info) {
 }
 
 glm::vec3 Presets::checkerA(SceneInfo* scene_info) {
-    Checker checker(scene_info);
-    setVec3(checker.getInSlot( Checker::InSlotName::Color1 ), glm::vec3(0.8f, 0.0f, 0.0f) );
-    setVec3(checker.getInSlot( Checker::InSlotName::Color2 ), glm::vec3(0.0f, 0.8f, 0.0f) );
-    glm::vec3 res = getVec3( checker.getOutSlot( Checker::OutSlotName::Color ) );
+    Stripes stripes(scene_info);
+    setVec3(stripes.in_slots_[0], glm::vec3(0.8f, 0.0f, 0.0f));
+    setVec3(stripes.in_slots_[1], glm::vec3(0.0f, 0.8f, 0.0f));
+    stripes.inverse_direction_ = true;
+    stripes.process();
+    glm::vec3 res = getVec3(stripes.out_slots_[0]);
     return res;
 }
 

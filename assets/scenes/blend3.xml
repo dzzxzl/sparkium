@@ -3,19 +3,19 @@
 
     <camera>
         <transform type="lookat">
-            <eye value="-693 0 0"/>
+            <eye value="693 0 0"/>
             <center value="0.0 0.0 0.0"/>
             <up value="0.0 1.0 0.0"/>
         </transform>
-        <fov value="50"/>
+        <fov value="32"/>
         <speed value="100"/>
     </camera>
 
     <model name="Area">
-        <vertex position="-363 -100 -615"/>
-        <vertex position="363 100 -615"/>
-        <vertex position="197 100 -727"/>
-        <vertex position="197 -100 -727"/>
+        <vertex position="363 -100 615"/>
+        <vertex position="363 100 615"/>
+        <vertex position="197 100 727"/>
+        <vertex position="197 -100 727"/>
 
         <index value="0"/>
         <index value="1"/>

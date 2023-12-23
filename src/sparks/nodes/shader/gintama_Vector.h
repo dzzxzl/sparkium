@@ -45,5 +45,4 @@ class Color: public Node {
   Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
 };
 
-
 } // namespace sparks
