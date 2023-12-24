@@ -61,8 +61,10 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
         break;
         auto old_direction = direction;
-        direction = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
-        throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(-old_direction, hit_record.geometry_normal), 0.0f) * importanceSampleFactor(hit_record, -old_direction, material.material_type) / GINTAMA_P_RR;
+        glm::vec4 sample = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
+        direction = glm::vec3(sample);
+        float weight = sample.w;
+        throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(-old_direction, hit_record.geometry_normal), 0.0f) * weight / GINTAMA_P_RR;
         if(genRandFloat(0,1) > GINTAMA_P_RR){
           break;
         }
@@ -93,7 +95,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
   return radiance;
 }
 
-glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const {
+glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const {
 
   if(material_type == MATERIAL_TYPE_LAMBERTIAN) {
     float theta = genRandFloat(0, PI);
@@ -107,7 +109,7 @@ glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     if(glm::dot(sample_direction, geo_normal) < 0.0f) {
       sample_direction = -sample_direction;
     }
-    return sample_direction;
+    return glm::vec4(sample_direction, (2.0f * PI));
   }
 
   else if( material_type == MATERIAL_TYPE_GLASS ) {
@@ -127,12 +129,12 @@ glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
         // return glm::vec3(0.0f);
-        return glm::reflect(-reflection, glass_normal);
+        return glm::vec4(glm::reflect(-reflection, glass_normal), 1.0f);
       }
       if(genRandFloat(0,1) < R) {
-        return glm::reflect(-reflection, glass_normal);
+        return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
       }
-      return glm::refract(-reflection, glass_normal, IOR);
+      return glm::vec4(glm::refract(-reflection, glass_normal, IOR),1.0f);
     } else {
       float cos_theta = glm::dot(reflection, glass_normal);
       float eta = 1.0f / IOR;
@@ -141,17 +143,17 @@ glm::vec3 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
         // return glm::vec3(0.0f);
-        return glm::reflect(-reflection, glass_normal);
+        return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
       }
       if(genRandFloat(0,1) < R) {
-        return glm::reflect(-reflection, glass_normal);
+        return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
       }
-      return glm::refract(-reflection, glass_normal, 1.0f / IOR);
+      return glm::vec4(glm::refract(-reflection, glass_normal, 1.0f / IOR),1.0f);
     }
   }
 
   else if( material_type == MATERIAL_TYPE_SPECULAR ) {
-    return glm::reflect(-reflection, hit_record.geometry_normal);
+    return glm::vec4(glm::reflect(-reflection, hit_record.geometry_normal),1.0f);
   }
 
 }
@@ -218,13 +220,13 @@ void PathTracer::sampleEnv(const Scene* scene, HitRecord hit_record, glm::vec3 r
 
 }
 
-float PathTracer::importanceSampleFactor(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const {
+// float PathTracer::importanceSampleFactor(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const {
 
-  if(material_type == MATERIAL_TYPE_LAMBERTIAN || material_type == MATERIAL_TYPE_CHECKERBUMP || material_type == MATERIAL_TYPE_CHECKER_A) {
-    return 2.0f * PI;
-  }
+//   if(material_type == MATERIAL_TYPE_LAMBERTIAN || material_type == MATERIAL_TYPE_CHECKERBUMP || material_type == MATERIAL_TYPE_CHECKER_A) {
+//     return 2.0f * PI;
+//   }
 
-}
+// }
 
 PathTracer::ShaderPreset PathTracer::getShaderPreset(MaterialType material_type) {
   if(material_type == MATERIAL_TYPE_LAMBERTIAN) {

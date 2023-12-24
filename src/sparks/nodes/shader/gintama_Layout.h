@@ -78,4 +78,22 @@ float getFloat(Slot* slot);
 glm::vec3 getVec3(Slot* slot);
 int getEnum(Slot* slot);
 
+// class BSDFShader {
+//   public:
+//     BSDFShader() = default;
+//     BSDFShader(glm::vec3 *throughput, glm::vec3 *radiance, SceneInfo* scene_info);
+//     ~BSDFShader();
+//     void sampleLight();
+//     void sampleEnv();
+//     glm::vec3 sampleScatter();
+//     glm::vec3 getFr();
+//     void setShaderByPreset(MaterialType material_type);
+//     glm::vec3 *throughput_{};
+//     glm::vec3 *radiance_{};
+//     float cur_weight_{};
+//     SceneInfo* scene_info_{};
+//     std::vector<Node*> nodes_;
+// };
+
+
 } // namespace sparks
