@@ -13,7 +13,8 @@ enum MaterialType : int {
   MATERIAL_TYPE_EMISSION = 4,
   MATERIAL_TYPE_GLASS = 5,
   MATERIAL_TYPE_CHECKERBUMP = 6,
-  MATERIAL_TYPE_CHECKER_A = 7
+  MATERIAL_TYPE_CHECKER_A = 7,
+  MATERIAL_TYPE_ROUGHGLASS = 8
 };
 
 class Scene;
@@ -29,7 +30,8 @@ struct Material {
   bool inverse_normal{false};
   bool shade_smooth{false};
   bool reserve[2]{};
-  float pad[4]{};
+  float roughness{0.1f};
+  float pad[3]{};
   Material() = default;
   explicit Material(const glm::vec3 &albedo);
   Material(Scene *scene, const tinyxml2::XMLElement *material_element);

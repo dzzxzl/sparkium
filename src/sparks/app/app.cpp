@@ -501,7 +501,7 @@ void App::UpdateImGui() {
       static int current_item = 0;
       std::vector<const char *> material_types = {
           "Lambertian", "Specular", "Transmissive", "Principled", "Emission",
-          "glass", "checkerBump", "checker_A"};
+          "glass", "checkerBump", "checker_A", "roughGlass"};
       Material &material = scene.GetEntity(selected_entity_id_).GetMaterial();
       reset_accumulation_ |=
           ImGui::Combo("Type", reinterpret_cast<int *>(&material.material_type),
@@ -521,6 +521,9 @@ void App::UpdateImGui() {
           ImGui::SliderFloat("Alpha", &material.alpha, 0.0f, 1.0f, "%.3f");
       reset_accumulation_ |=
           ImGui::SliderFloat("IOR", &material.IOR, 1.0f, 1.6f, "%.3f");
+      reset_accumulation_ |=
+          ImGui::SliderFloat("Roughness", &material.roughness, 0.0f, 1.0f,
+                             "%.3f");
     }
 
 #if !defined(NDEBUG)

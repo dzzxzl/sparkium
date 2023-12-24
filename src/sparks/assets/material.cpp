@@ -16,7 +16,8 @@ std::unordered_map<std::string, MaterialType> material_name_map{
     {"emission", MATERIAL_TYPE_EMISSION},
     {"glass", MATERIAL_TYPE_GLASS},
     {"checkerBump", MATERIAL_TYPE_CHECKERBUMP},
-    {"checker_A", MATERIAL_TYPE_CHECKER_A}};
+    {"checker_A", MATERIAL_TYPE_CHECKER_A},
+    {"roughGlass", MATERIAL_TYPE_ROUGHGLASS}};
 }
 
 Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
@@ -75,6 +76,11 @@ Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
         std::stoi(child_element->FindAttribute("value")->Value()) != 0;
   }
   
+  child_element = material_element->FirstChildElement("roughness");
+  if (child_element) {
+    roughness = std::stof(child_element->FindAttribute("value")->Value());
+  }
+
   material_type =
       material_name_map[material_element->FindAttribute("type")->Value()];
 }

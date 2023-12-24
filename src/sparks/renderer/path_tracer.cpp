@@ -48,10 +48,21 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       // Glass or specular material
       else if (material.material_type == MATERIAL_TYPE_GLASS || material.material_type == MATERIAL_TYPE_SPECULAR) {
         origin = hit_record.position;
-        direction = importanceSample(hit_record, -direction, material.material_type);
+        glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
+        direction = glm::vec3(sample);
         if(glm::length(direction) < 1e-3f) {
           break;
         }
+      }
+      else if (material.material_type == MATERIAL_TYPE_ROUGHGLASS) {
+        origin = hit_record.position;
+        glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
+        direction = glm::vec3(sample);
+        if(glm::length(direction) < 1e-3f) {
+          break;
+        }
+        float weight = sample.w;
+        throughput *= weight;
       }
       // Non-transmissive material
       else if (
@@ -64,7 +75,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         glm::vec4 sample = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
         direction = glm::vec3(sample);
         float weight = sample.w;
-        throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(-old_direction, hit_record.geometry_normal), 0.0f) * weight / GINTAMA_P_RR;
+        throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(direction, hit_record.geometry_normal), 0.0f) * weight / GINTAMA_P_RR;
         if(genRandFloat(0,1) > GINTAMA_P_RR){
           break;
         }
@@ -97,6 +108,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
 
 glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const {
 
+  auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
   if(material_type == MATERIAL_TYPE_LAMBERTIAN) {
     float theta = genRandFloat(0, PI);
     float phi = genRandFloat(0, 2 * PI);
@@ -112,8 +124,7 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     return glm::vec4(sample_direction, (2.0f * PI));
   }
 
-  else if( material_type == MATERIAL_TYPE_GLASS ) {
-    auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+  else if( material_type == MATERIAL_TYPE_GLASS || (material_type == MATERIAL_TYPE_ROUGHGLASS && material.roughness == 0.0f ) ) {
     auto IOR = material.IOR;
     bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
     glm::vec3 glass_normal = hit_record.geometry_normal;
@@ -154,6 +165,39 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
 
   else if( material_type == MATERIAL_TYPE_SPECULAR ) {
     return glm::vec4(glm::reflect(-reflection, hit_record.geometry_normal),1.0f);
+  }
+
+  else if(material_type == MATERIAL_TYPE_ROUGHGLASS && material.roughness > 0.0f) {
+    glm::vec3 normal = hit_record.geometry_normal;
+    if(material.shade_smooth) {
+      normal = hit_record.normal;
+    }
+    glm::vec half = genRandVec3();
+    while(true) {
+      float rand_p = genRandFloat(0,1);
+      float ggx_D = GGX_D(normal, half, 0.1f);
+      if(rand_p < ggx_D) {
+        break;
+      }
+      half = genRandVec3();
+    }
+    bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
+    float eta = 1.0f / material.IOR;
+    if(in_glass) {
+      eta = material.IOR;
+    }
+    float R = reflectFresnel(normal, -reflection, eta);
+    float rand_p = genRandFloat(0,1);
+    glm::vec3 new_direction = glm::reflect(-reflection, half);
+    if(rand_p > R) {
+      new_direction = glm::refract(-reflection, half, eta);
+    }
+    float cos_im = glm::dot(-reflection, half);
+    float cos_in = glm::dot(-reflection, normal);
+    float cos_mn = glm::dot(half, normal);
+    float g = GGX_G(normal, half, -reflection, new_direction, material.roughness);
+    float weight = glm::abs( cos_im * g / ( cos_in * cos_mn ) );
+    return glm::vec4( new_direction, weight );
   }
 
 }
@@ -246,6 +290,9 @@ PathTracer::ShaderPreset PathTracer::getShaderPreset(MaterialType material_type)
   }
   else if(material_type == MATERIAL_TYPE_CHECKER_A) {
     return ShaderPreset::Checker_A;
+  }
+  else if(material_type == MATERIAL_TYPE_ROUGHGLASS) {
+    return ShaderPreset::RoughGlass;
   }
 }
 

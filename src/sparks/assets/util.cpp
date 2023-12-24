@@ -135,4 +135,58 @@ int genRandInt(int low, int high) {
   return low + rand() % (high - low);
 }
 
+float reflectFresnel(glm::vec3 normal, glm::vec3 incident, float eta) {
+    float cos_i = glm::dot( -incident, normal );
+    float R_0 = (1.0f - eta) / (1.0f + eta);
+    R_0 = R_0 * R_0;
+    float R = R_0 + (1.0f - R_0) * std::pow(1.0f - cos_i, 5.0f);
+    if( 1 - eta * eta * (1 - cos_i * cos_i) < 0.0f ) {
+        return 1.0f;
+    }
+    return R;
+}
+
+float GGX_D(glm::vec3 normal, glm::vec3 half, float roughness) {
+    float cos_h = glm::dot(half, normal);
+    float x_ = cos_h > 0.0f ? 1.0f : 0.0f;
+    float cos_h2 = cos_h * cos_h;
+    float tan_h2 = (1.0f - cos_h2) / cos_h2;
+    float alpha2 = roughness * roughness;
+    float alpha2tan2 = alpha2 * tan_h2;
+    float denom = cos_h2 * (alpha2 + tan_h2);
+    return alpha2 * x_ / (PI * denom * denom);
+}
+
+float GGX_G1(glm::vec3 normal, glm::vec3 half, glm::vec3 v, float roughness) {
+    float cos_vm = glm::dot(v, half);
+    float cos_vn = glm::dot(v, normal);
+    if (std::abs(cos_vn) < 1e-3f) {
+        return 0.0f;
+    }
+    float x_ = cos_vm / cos_vn > 0.0f ? 1.0f : 0.0f;
+    float tan_vn2 = (1.0f - cos_vn * cos_vn) / (cos_vn * cos_vn);
+    float alpha2 = roughness * roughness;
+    float alpha2tan2 = alpha2 * tan_vn2;
+    return 2.0f * x_ / (1.0f + std::sqrt(1.0f + alpha2tan2));
+}
+
+float GGX_G(glm::vec3 normal, glm::vec3 half, glm::vec3 i, glm::vec3 o, float roughness) {
+    return GGX_G1(normal, half, i, roughness) * GGX_G1(normal, half, o, roughness);
+}
+
+glm::vec3 genRandVec3() {
+    float theta = genRandFloat(0, PI);
+    float phi = genRandFloat(0, 2 * PI);
+    glm::vec3 sample_direction = glm::vec3(
+        glm::sin(theta) * glm::cos(phi),
+        glm::sin(theta) * glm::sin(phi),
+        glm::cos(theta)
+    );
+    return sample_direction;
+}
+
+float rgbtoGray(glm::vec3 rgb) {
+    return 0.299f * rgb.r + 0.587f * rgb.g + 0.114f * rgb.b;
+}
+
 }  // namespace sparks
