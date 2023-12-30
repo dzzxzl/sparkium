@@ -106,10 +106,17 @@ void ColorClamp::process() {
         }
     } else {
         float in_gray_scale = rgbtoGray(in_color);
-        for(int i=0; i<colors_.size(); i++){
-            if(in_gray_scale < values_[i]){
-                res_colr = colors_[i];
+        int idx = 0;
+        while( idx < colors_.size() ) {
+            if(in_gray_scale < values_[idx]) {
+                break;
             }
+            idx++;
+        }
+        if(idx == 0) {
+            res_colr = start_color_;
+        } else {
+            res_colr = colors_[idx-1];
         }
     }
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = res_colr;

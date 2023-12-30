@@ -34,12 +34,11 @@ class RoughGlassSampler: public Node {
         RoughGlassSampler(SceneInfo* scene_info);
         ~RoughGlassSampler() override;
         void process() override;
-        // enum class InSlotName {
-        //     Roughness = 0,
-        //     Normal,
-        //     View,
-        //     Light
-        // };
+        enum class InSlotName {
+            Normal = 0,
+            IOR,
+            Roughness
+        };
         enum class OutSlotName {
             Direction = 0,
             Weight
@@ -47,9 +46,9 @@ class RoughGlassSampler: public Node {
         bool overwrite_weight_{false};
         SceneInfo* scene_info_;
         int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
-        // int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
+        int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
         Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
-        // Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
+        Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
 };
 
 class GlassSampler: public Node {

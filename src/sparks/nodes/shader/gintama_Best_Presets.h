@@ -6,6 +6,7 @@
 #include "sparks/nodes/shader/gintama_BSDF.h"
 #include "sparks/nodes/shader/gintama_Inputs.h"
 #include "sparks/nodes/shader/gintama_Converter.h"
+#include "sparks/nodes/shader/gintama_Sampler.h"
 #include "sparks/assets/scene.h"
 
 namespace sparks {
@@ -19,6 +20,7 @@ class Presets {
     static glm::vec3 noiseA(SceneInfo* scene_info);
     static glm::vec3 glossy(SceneInfo* scene_info);
     static glm::vec3 rust(SceneInfo* scene_info);
+    static glm::vec4 sampleRoughGlass(SceneInfo* scene_info);
 };
 
 

@@ -129,4 +129,36 @@ glm::vec3 Presets::rust(SceneInfo * scene_info)
     return res;
 }
 
+glm::vec4 Presets::sampleRoughGlass(SceneInfo * scene_info)
+{
+    TextureSampleAbsolute texSamp(scene_info);
+    RoughGlassSampler roughGlass(scene_info);
+    ColorClamp colorClamp;
+
+    texSamp.link( &colorClamp, 0, 0 );
+    colorClamp.link( &roughGlass, 0, 2 );
+
+    auto material = scene_info->scene_->GetEntity(scene_info->hit_record_.hit_entity_id).GetMaterial();
+    setVec3( roughGlass.in_slots_[0], scene_info->hit_record_.normal );
+    setFloat( roughGlass.in_slots_[1], material.IOR );
+
+    // set color clamp color
+    // use material.inter_pos_1_ and material.ramp_color_1_
+    colorClamp.setColor( material.ramp_color_1_, material.inter_pos_1_ );
+    // set 1 color is enough
+
+    // bind texsamp parameter
+    texSamp.offset_x = material.text_offset_x_;
+    texSamp.offset_y = material.text_offset_y_;
+    texSamp.scale_x = material.text_scale_x_;
+    texSamp.scale_y = material.text_scale_y_;
+
+    roughGlass.process();
+    auto direction = getVec3( roughGlass.out_slots_[0] );
+    auto weight = getFloat( roughGlass.out_slots_[1] );
+    glm::vec4 res = glm::vec4( direction, weight );
+    return res;
+        
+}
+
 }

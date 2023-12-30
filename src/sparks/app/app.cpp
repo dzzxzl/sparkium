@@ -502,7 +502,7 @@ void App::UpdateImGui() {
       std::vector<const char *> material_types = {
           "Lambertian", "Specular", "Transmissive", "Principled", "Emission",
           "glass", "checkerBump", "checker_A", "roughGlass", "volumeA", "glossy",
-          "noise_A","rust"};
+          "noise_A","rust", "roughGlassNode"};
       Material &material = scene.GetEntity(selected_entity_id_).GetMaterial();
       reset_accumulation_ |=
           ImGui::Combo("Type", reinterpret_cast<int *>(&material.material_type),

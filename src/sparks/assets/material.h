@@ -19,6 +19,7 @@ enum MaterialType : int {
   MATERIAL_TYPE_GLOSSY = 10,
   MATERIAL_TYPE_NOISE_A = 11,
   MATERIAL_TYPE_RUST = 12,
+  MATERIAL_TYPE_ROUGHGLASS_NODE = 13,
 };
 
 class Scene;

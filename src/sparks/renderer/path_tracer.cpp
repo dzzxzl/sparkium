@@ -96,6 +96,23 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           float weight = sample.w;
           throughput *= weight;
         }
+        else if (material.material_type == MATERIAL_TYPE_ROUGHGLASS_NODE) { // <- here
+          origin = hit_record.position;
+          glm::vec4 sample = importanceSample_use_node(hit_record, -direction, material.material_type);
+          direction = glm::vec3(sample);
+          if(glm::length(direction) < 1e-3f) {
+            break;
+          }
+          // if refraction and has volume
+          if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
+            if( material.has_volume ) {
+              ray.type = ginRay::RayType::Volume;
+              ray.enterMaterial(&material);
+            }
+          }
+          float weight = sample.w;
+          throughput *= weight;
+        }
         // Non-transmissive material
         else if (
           material.material_type == MATERIAL_TYPE_LAMBERTIAN 
@@ -305,7 +322,8 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     return glm::vec4(sample_direction, (2.0f * PI));
   }
 
-  else if( material_type == MATERIAL_TYPE_GLASS || (material_type == MATERIAL_TYPE_ROUGHGLASS && material.roughness == 0.0f ) ) {
+  else if( material_type == MATERIAL_TYPE_GLASS 
+  || (material_type == MATERIAL_TYPE_ROUGHGLASS && material.roughness == 0.0f ) ) {
     auto IOR = material.IOR;
     bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
     glm::vec3 glass_normal = hit_record.geometry_normal;
@@ -404,6 +422,19 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     // ?
   }
 
+}
+
+glm::vec4 PathTracer::importanceSample_use_node(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const
+{
+  auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+  if(material_type == MATERIAL_TYPE_ROUGHGLASS_NODE) {
+    LightRecord light_record;
+    light_record.reflected = reflection;
+    SceneInfo* scene_info = new SceneInfo{scene_, hit_record, light_record};
+    return Presets::sampleRoughGlass(scene_info);
+  } else {
+    return glm::vec4();
+  }
 }
 
 glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, LightRecord light_record, ShaderPreset shader_preset) const {
