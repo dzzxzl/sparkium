@@ -3,19 +3,19 @@
 
     <camera>
         <transform type="lookat">
-            <eye value="-764.0 309.0 -380.0"/>
+            <eye value="693 0 0"/>
             <center value="0.0 0.0 0.0"/>
             <up value="0.0 1.0 0.0"/>
         </transform>
-        <fov value="24"/>
+        <fov value="32"/>
         <speed value="100"/>
     </camera>
 
     <model name="Area">
-        <vertex position="100.0 425.0 -273.0"/>
-        <vertex position="-100.0 425.0 -273.0"/>
-        <vertex position="-100.0 425.0 -223.0"/>
-        <vertex position="100.0 425.0 -223.0"/>
+        <vertex position="363 -100 615"/>
+        <vertex position="363 100 615"/>
+        <vertex position="197 100 727"/>
+        <vertex position="197 -100 727"/>
 
         <index value="0"/>
         <index value="1"/>
@@ -26,12 +26,13 @@
 
         <material type="emission">
             <emission value="1.0 1.0 1.0"/>
-            <emission_strength value="20.0"/>
+            <emission_strength value="80.0"/>
         </material>
     </model>
 
+    
     <model type="obj" name="Plane">
-        <filename value="../../meshes/checker_plane.obj"/>
+        <filename value="../../meshes/3-plane.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
             <translation value="0.0 0.0 0.0"/>
@@ -39,34 +40,41 @@
         </transform>
         <material type="lambertian">
             <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
         </material>
     </model>
 
     <!-- <model type="obj" name="Sphere">
-        <filename value="../../meshes/checker_sphere.obj"/>
+        <filename value="../../meshes/3-sphere.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
             <translation value="0.0 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
-        <material type="glossy">
+        <material type="noise_A">
             <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
             <shade_smooth value="1"/>
+            <albedo_texture value="../../textures/toshi.jpg"/>
         </material>
     </model> -->
 
-    <model type="obj" name="Short Block">
-        <filename value="../../meshes/oh_this_is_not_an_ordinary_cube.obj"/>
+    <model type="obj" name="Suzzane">
+        <filename value="../../meshes/monkey.obj"/>
         <transform type="world">
-            <scale value="80 80 80"/>
-            <translation value="0 0 0"/>
-            <rotation value="0 0 0"/>
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 50.0 0.0"/>
         </transform>
-        <material type="glossy">
-            <albedo value="1 1 1"/>
+        <material type="rust">
+            <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+            <albedo_texture value="../../textures/moon.png"/>
         </material>
     </model>
+
 
 
 </scene>

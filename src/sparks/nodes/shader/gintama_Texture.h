@@ -4,6 +4,7 @@
 #include "sparks/nodes/shader/gintama_Layout.h"
 #include "glm/glm.hpp"
 #include "cmath"
+#include "sparks/nodes/shader/gintama_assets.h"
 
 namespace sparks {
 
@@ -52,16 +53,18 @@ class Stripes: public Node {
   Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
 };
 
-class Noise: public Node {
+class NoiseTexture: public Node {
  public:
-  Noise() = delete;
-  Noise(SceneInfo* scene_info);
-  ~Noise() override;
+  NoiseTexture() = delete;
+  NoiseTexture(SceneInfo* scene_info);
+  ~NoiseTexture() override;
   void process() override;
   enum class InSlotName {
-    Scale,
+    Scale_Grid,
+    Scale_Noise,
     Detail,
-    Roughness
+    Roughness,
+    PerlinID
   };
   enum class OutSlotName {
     Color = 0,

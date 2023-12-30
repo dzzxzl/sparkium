@@ -13,6 +13,18 @@ struct Material {
   vec4 pad4;
   vec4 pad5;
   vec4 pad6;
+  // here begins interpolation pad
+  vec4 pad7;
+  // here begins texture move
+  vec4 pad8;
+  // here begins glossy components
+  vec4 pad9;
+  vec4 pad10;
+  // here begins color ramp components pad
+  vec4 pad11;
+  vec4 pad12;
+  vec4 pad13;
+  
 };
 
 #define MATERIAL_TYPE_LAMBERTIAN 0

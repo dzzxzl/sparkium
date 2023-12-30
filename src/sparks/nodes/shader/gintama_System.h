@@ -18,7 +18,8 @@ struct ginRay {
         Shadow,
         Reflection,
         Refraction,
-        Volume
+        Volume,
+        NonCamera
     };
     RayType type;
     void enterMaterial( const Material* material );

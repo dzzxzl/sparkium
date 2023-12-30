@@ -11,7 +11,8 @@ class Bump: public Node {
   Bump(SceneInfo* scene_info);
   ~Bump() override;
   enum class BumpType {
-    Height = 0, Normal = 1
+    Height = 0, Normal = 1,
+    GradHeight = 2
   };
   enum class InSlotName {
     Scale = 0,
@@ -28,6 +29,8 @@ class Bump: public Node {
   int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
   Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
   Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
+  void flush();
+
 };
 
 class Color: public Node {

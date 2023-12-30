@@ -196,11 +196,17 @@ float MISWeight(int nsamp1, float pdf1, int nsamp2, float pdf2)
     float w2 = nsamp2 * pdf2;
     return 1.0f / (w1 + w2);
 }
-void genThetaPhih(float u, float v, glm::vec3 *h, float rough_x, float rough_y)
+void genThetaPhih(float u, float v, glm::vec3 *h, float rough_x, float rough_y, glm::vec3 n, glm::vec3 i, glm::vec3 ex, glm::vec3 ey)
 {
     float tan_2v = tan(2 * PI * v);
     float phi = atan(rough_y / rough_x * tan_2v);
-    if ( v > 0.25f && v <= 0.75f ) {
+    if ( v > 0.25f && v <= 0.5f) {
+        phi += PI;
+    }
+    if ( v > 0.75f) {
+        phi += 2 * PI;
+    }
+    if ( v > 0.5f && v <= 0.75f) {
         phi += PI;
     }
     float cos_phi_x = cos(phi) / rough_x;
@@ -212,33 +218,36 @@ void genThetaPhih(float u, float v, glm::vec3 *h, float rough_x, float rough_y)
     float sin_theta = sin(theta);
     float cos_phi = cos(phi);
     float sin_phi = sin(phi);
-    *h = glm::vec3(
-        sin_theta * cos_phi,
-        sin_theta * sin_phi,
-        cos_theta
-    );
-}
-void genThetaPhihWeight(float rho_s, glm::vec3 * h, glm::vec3 * i, glm::vec3 * o, glm::vec3 * n, float * weight)
-{
-  float h_n = glm::dot(*h, *n);
-  float h_i = glm::dot(*h, *i);
-  float i_n = glm::dot(*i, *n);
-  float o_n = glm::dot(*o, *n);
-  float h_n_3 = h_n * h_n * h_n;
-  *weight = h_n_3 * h_i * sqrt( o_n / i_n );
+    *h = 
+        sin_theta * cos_phi * ex +
+        sin_theta * sin_phi * ey +
+        cos_theta * (n);
 }
 
-glm::vec3 frGlossy(glm::vec3 rho_s, glm::vec3 n, glm::vec3 h, glm::vec3 i, glm::vec3 o, float rough_x, float rough_y)
+void genThetaPhihWeight(float rho_s, glm::vec3 h, glm::vec3 i, glm::vec3 o, glm::vec3 n, float * weight)
 {
-  float hx_x = h.x / rough_x;
-  float hy_y = h.y / rough_y;
+  float h_n = glm::dot(h, n);
+  float h_i = glm::dot(h, i);
+  float i_n = glm::dot(i, n);
+  float o_n = glm::dot(o, n);
+  float h_n_3 = h_n * h_n * h_n;
+  *weight = rho_s * h_n_3 * h_i * sqrt( o_n / i_n );
+}
+
+glm::vec3 frGlossy(glm::vec3 rho_s, glm::vec3 n, glm::vec3 h, glm::vec3 i, glm::vec3 o, float rough_x, float rough_y, glm::vec3 ex, glm::vec3 ey)
+{
+  float hx_x = glm::dot( h, ex ) / rough_x;
+  float hy_y = glm::dot( h, ey ) / rough_y;
   float hx_x2 = hx_x * hx_x;
   float hy_y2 = hy_y * hy_y;
   float h_n = glm::dot(h, n);
   float h_n_2 = h_n * h_n;
   float i_n = glm::dot(i, n);
   float o_n = glm::dot(o, n);
+  float pre_a = (hx_x2 + hy_y2) / (h_n_2);
   float a = 1.0f / ( 4.0f * PI * rough_x * rough_y * sqrt( i_n * o_n ) ) * exp( - ( hx_x2 + hy_y2 ) / ( h_n_2 ) );
+  // float a = 1.0f / ( 4.0f * PI * rough_x * rough_y * sqrt( i_n * o_n ) ) ;
+  LAND_INFO("exp term: {} -> {} -> {} -> {}", glm::dot( ex, ex ), rough_x, - ( hx_x2 + hy_y2 ) / ( h_n_2 ), exp( - ( hx_x2 + hy_y2 ) / ( h_n_2 ) ));
   return rho_s * a;
 }
 

@@ -17,6 +17,8 @@ enum MaterialType : int {
   MATERIAL_TYPE_ROUGHGLASS = 8,
   MATERIAL_TYPE_VOLUME_A = 9,
   MATERIAL_TYPE_GLOSSY = 10,
+  MATERIAL_TYPE_NOISE_A = 11,
+  MATERIAL_TYPE_RUST = 12,
 };
 
 class Scene;
@@ -40,7 +42,34 @@ struct Material {
   glm::vec3 scatter_albedo{1.0f};
   float volume_scale_{1.0f};
   glm::vec3 volume_emission_color{0.0f};
-  float pad3[1]{};
+  // some more bools
+  bool inverter_invert{true};
+  bool pad3[3]{};
+  // here begin interpolation
+  float inter_pos_1_{0.432f};
+  float inter_pos_2_{0.532f};
+  float pad4[2]{};
+  // here begin texture moves
+  float text_scale_x_{1.0f};
+  float text_scale_y_{1.0f};
+  float text_offset_x_{0.0f};
+  float text_offset_y_{0.0f};
+
+  // here begins glossy components
+  glm::vec3 glossy_color_{1.0f};
+  float roughness_x_{0.59f};
+
+  float roughness_anisotropic_{0.0f};
+  float pad5[3]{};
+
+  // here begins color ramp components
+  glm::vec3 ramp_color_1_{0.57f, 0.215f, 0.077f};
+  float ramp_pos_1_{0.368f};
+  glm::vec3 ramp_color_2_{0.139f};
+  float ramp_pos_2_{0.505f};
+  glm::vec3 ramp_color_3_{0.482f};
+  float ramp_pos_3_{0.605f};
+
   Material() = default;
   explicit Material(const glm::vec3 &albedo);
   Material(Scene *scene, const tinyxml2::XMLElement *material_element);

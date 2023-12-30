@@ -16,6 +16,9 @@ class Presets {
     ~Presets() = default;
     static glm::vec3 checkerBump(SceneInfo* scene_info);
     static glm::vec3 checkerA(SceneInfo* scene_info);
+    static glm::vec3 noiseA(SceneInfo* scene_info);
+    static glm::vec3 glossy(SceneInfo* scene_info);
+    static glm::vec3 rust(SceneInfo* scene_info);
 };
 
 

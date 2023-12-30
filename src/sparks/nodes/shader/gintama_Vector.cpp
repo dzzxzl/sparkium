@@ -47,7 +47,9 @@ void Bump::process() {
     glm::vec3 out_normal = normal_;
     if(type == 0) {
         // height displacement
-        out_normal = grad[0] * e_u + grad[1] * e_v + grad[2] * normal_;
+        out_normal = - grad[0] * e_u + grad[1] * e_v + grad[2] * normal_;
+        // out_normal = normal_;
+        // out_normal = grad[0] * e_v + grad[1] * e_u + grad[2] * normal_;
         out_normal = glm::normalize(out_normal);
         if (glm::dot(out_normal, reflection_) < 0.0f) {
             out_normal = normal_;
@@ -61,12 +63,38 @@ void Bump::process() {
         if(!outward) {
             out_normal = -out_normal;
         }
+    } else if(type == 2) {
+        float dx = 1e-2f;
+        scene_info_->hit_record_.tex_coord.x += dx;
+        flush();
+        glm::vec3 height_dx = static_cast<Vec3Slot*>(in_slots_[2])->value_;
+        scene_info_->hit_record_.tex_coord.y += dx;
+        scene_info_->hit_record_.tex_coord.x -= dx;
+        flush();
+        glm::vec3 height_dy = static_cast<Vec3Slot*>(in_slots_[2])->value_;
+        scene_info_->hit_record_.tex_coord.y -= dx;
+        float diffx = glm::length( (height_dx - height) / dx ) / sqrt(3.0f);
+        float diffy = glm::length( (height_dy - height) / dx ) / sqrt(3.0f);
+        out_normal = - diffx * e_u + diffy * e_v + 1.0f * normal_;
+        out_normal = glm::normalize(out_normal);
+        if (glm::dot(out_normal, reflection_) < 0.0f) {
+            out_normal = normal_;
+        }
     }
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = out_normal;
     // push to next node
     if(out_slots_[0]->nextNode_ != nullptr) {
         auto next_slot = out_slots_[0]->nextNode_->in_slots_[out_slots_[0]->nextSlotId_];
         static_cast<Vec3Slot*>(next_slot)->value_ = out_normal;
+    }
+}
+
+void Bump::flush()
+{
+    for(int i=0; i<4; i++){
+        if(in_slots_[i]->lastNode_ != nullptr) {
+            in_slots_[i]->lastNode_->process();
+        }
     }
 }
 

@@ -501,7 +501,8 @@ void App::UpdateImGui() {
       static int current_item = 0;
       std::vector<const char *> material_types = {
           "Lambertian", "Specular", "Transmissive", "Principled", "Emission",
-          "glass", "checkerBump", "checker_A", "roughGlass", "volumeA", "glossy"};
+          "glass", "checkerBump", "checker_A", "roughGlass", "volumeA", "glossy",
+          "noise_A","rust"};
       Material &material = scene.GetEntity(selected_entity_id_).GetMaterial();
       reset_accumulation_ |=
           ImGui::Combo("Type", reinterpret_cast<int *>(&material.material_type),
@@ -536,6 +537,44 @@ void App::UpdateImGui() {
           ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
       reset_accumulation_ |= ImGui::SliderFloat(
           "Volume Scale", &material.volume_scale_, 0.0f, 2e2f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Interpolation Position 1", &material.inter_pos_1_, 0.0f, 1.0f,
+          "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Interpolation Position 2", &material.inter_pos_2_, 0.0f, 1.0f,
+          "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Texture Scale X", &material.text_scale_x_, 0.0f, 10.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Texture Scale Y", &material.text_scale_y_, 0.0f, 10.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Texture Offset X", &material.text_offset_x_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Texture Offset Y", &material.text_offset_y_, 0.0f, 1.0f, "%.3f");
+          
+      reset_accumulation_ |= ImGui::ColorEdit3(
+          "Glossy Color", &material.glossy_color_[0],
+          ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Roughness X", &material.roughness_x_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Roughness Anisotropic", &material.roughness_anisotropic_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::ColorEdit3(
+          "Ramp Color 1", &material.ramp_color_1_[0],
+          ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Ramp Position 1", &material.ramp_pos_1_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::ColorEdit3(
+          "Ramp Color 2", &material.ramp_color_2_[0],
+          ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Ramp Position 2", &material.ramp_pos_2_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::ColorEdit3(
+          "Ramp Color 3", &material.ramp_color_3_[0],
+          ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Ramp Position 3", &material.ramp_pos_3_, 0.0f, 1.0f, "%.3f");
+          reset_accumulation_ |= ImGui::Checkbox("inverter invert", &material.inverter_invert);
     }
 
 #if !defined(NDEBUG)

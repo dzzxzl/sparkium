@@ -36,11 +36,35 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         // }
         // Emission material
         if (material.material_type == MATERIAL_TYPE_EMISSION) {
-          radiance += throughput * material.emission * material.emission_strength;
+          if(ray.type == ginRay::RayType::Camera) {
+            radiance += throughput * material.emission * material.emission_strength;
+          }
           break; 
         }
+        else if (material.material_type == MATERIAL_TYPE_GLOSSY
+          || material.material_type == MATERIAL_TYPE_RUST) {
+          // no sample light
+          origin = hit_record.position;
+          auto shader_preset = getShaderPreset(material.material_type);
+          // modify sample light
+          // TODO
+          // add transmittance estimation
+          sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
+          break;
+          ray.type = ginRay::RayType::NonCamera;
+          glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
+          direction = glm::vec3(sample);
+          // LAND_INFO("sample: {}", sample.w);
+          float aaa = glm::dot( direction, hit_record.geometry_normal );
+          // LAND_INFO("dot: {}", aaa);
+          throughput *= sample.w;
+          if(glm::length(throughput) < 1e-3f) {
+            break;
+          }
+        }
         // Glass or specular material
-        else if (material.material_type == MATERIAL_TYPE_GLASS || material.material_type == MATERIAL_TYPE_SPECULAR) {
+        else if (material.material_type == MATERIAL_TYPE_GLASS 
+        || material.material_type == MATERIAL_TYPE_SPECULAR) {
           origin = hit_record.position;
           glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
           direction = glm::vec3(sample);
@@ -74,14 +98,19 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         }
         // Non-transmissive material
         else if (
-          material.material_type == MATERIAL_TYPE_LAMBERTIAN || material.material_type == MATERIAL_TYPE_CHECKERBUMP || material.material_type == MATERIAL_TYPE_CHECKER_A) {
+          material.material_type == MATERIAL_TYPE_LAMBERTIAN 
+          || material.material_type == MATERIAL_TYPE_CHECKERBUMP 
+          || material.material_type == MATERIAL_TYPE_CHECKER_A 
+          || material.material_type == MATERIAL_TYPE_NOISE_A
+          // || material.material_type == MATERIAL_TYPE_GLOSSY
+          ) {
           origin = hit_record.position;
           auto shader_preset = getShaderPreset(material.material_type);
           // modify sample light
           // TODO
           // add transmittance estimation
           sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
-          // break;
+          break;
           auto old_direction = direction;
           glm::vec4 sample = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
           direction = glm::vec3(sample);
@@ -352,6 +381,29 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     return glm::vec4( new_direction, weight );
   }
 
+  else if (material_type == MATERIAL_TYPE_GLOSSY) {
+    // TODO
+    // get normal according to custom shader
+    glm::vec3 normal = hit_record.geometry_normal;
+    float u = genRandFloat(0,1);
+    float v = genRandFloat(0,1);
+    glm::vec3 h;
+    glm::vec3 ey = hit_record.tangent;
+    glm::vec3 ex = glm::cross( ey, normal );
+    ex = glm::normalize( ex );
+    ey = glm::cross( normal, ex );
+    ey = glm::normalize( ey );
+    genThetaPhih( u, v, &h, material.roughness_x_, material.roughness_x_, normal, reflection, ex, ey );
+    float weight;
+    glm::vec3 incident_ = 2 * (glm::dot(reflection, h)) * h - (reflection);
+    genThetaPhihWeight( material.glossy_color_.x, h, reflection, incident_, normal, &weight);
+
+    float bbb = glm::dot( incident_, normal );
+    // LAND_INFO("dot: {}", bbb);
+    return glm::vec4(incident_, weight);
+    // ?
+  }
+
 }
 
 glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, LightRecord light_record, ShaderPreset shader_preset) const {
@@ -373,6 +425,21 @@ glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, Ligh
     return Presets::checkerA(scene_info);
   }
 
+  else if(shader_preset == ShaderPreset::NoiseA) {
+    SceneInfo* scene_info = new SceneInfo{scene, hit_record, light_record};
+    return Presets::noiseA(scene_info);
+  }
+
+  else if(shader_preset == ShaderPreset::Glossy) {
+    SceneInfo* scene_info = new SceneInfo{scene, hit_record, light_record};
+    return Presets::glossy(scene_info);
+  }
+
+  else if(shader_preset == ShaderPreset::Rust) {
+    SceneInfo* scene_info = new SceneInfo{scene, hit_record, light_record};
+    return Presets::rust(scene_info);
+
+  }
 }
 
 void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3 reflection, ShaderPreset shader_preset, glm::vec3 &radiance, glm::vec3 throughput) const {
@@ -447,6 +514,21 @@ PathTracer::ShaderPreset PathTracer::getShaderPreset(MaterialType material_type)
   }
   else if(material_type == MATERIAL_TYPE_ROUGHGLASS) {
     return ShaderPreset::RoughGlass;
+  }
+  else if(material_type == MATERIAL_TYPE_VOLUME_A) {
+    return ShaderPreset::VolumeA;
+  }
+  else if(material_type == MATERIAL_TYPE_GLOSSY) {
+    return ShaderPreset::Glossy;
+  }
+  else if(material_type == MATERIAL_TYPE_NOISE_A) {
+    return ShaderPreset::NoiseA;
+  }
+  else if(material_type == MATERIAL_TYPE_RUST) {
+    return ShaderPreset::Rust;
+  }
+  else {
+    return ShaderPreset::Lambertian;
   }
 }
 

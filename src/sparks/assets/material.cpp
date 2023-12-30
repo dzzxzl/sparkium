@@ -19,7 +19,9 @@ std::unordered_map<std::string, MaterialType> material_name_map{
     {"checker_A", MATERIAL_TYPE_CHECKER_A},
     {"roughGlass", MATERIAL_TYPE_ROUGHGLASS},
     {"volumeA", MATERIAL_TYPE_VOLUME_A},
-    {"glossy", MATERIAL_TYPE_GLOSSY}};
+    {"glossy", MATERIAL_TYPE_GLOSSY},
+    {"noise_A", MATERIAL_TYPE_NOISE_A},
+    {"rust", MATERIAL_TYPE_RUST}};
 }
 
 Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
