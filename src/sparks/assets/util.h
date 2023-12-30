@@ -3,6 +3,7 @@
 #include "string"
 #include "tinyxml2.h"
 #include "sparks/util/util.h"
+#include <cmath>
 
 namespace sparks {
 glm::vec3 DecomposeRotation(glm::mat3 R);
@@ -39,6 +40,13 @@ glm::vec3 genRandVec3();
 
 float rgbtoGray(glm::vec3 rgb);
 
+float MISWeight(int nsamp1, float pdf1, int nsamp2, float pdf2);
+
+void genThetaPhih(float u, float v, glm::vec3 *h, float rough_x, float rough_y);
+
+void genThetaPhihWeight( float rho_s, glm::vec3 *h, glm::vec3 *i, glm::vec3 *o, glm::vec3 *n, float *weight);
+
+glm::vec3 frGlossy(glm::vec3 rho_s, glm::vec3 n, glm::vec3 h, glm::vec3 i, glm::vec3 o, float rough_x, float rough_y);
 // glm::vec3 good_refraction(glm::vec3 incident, glm::vec3 normal, float ior);
 
 }  // namespace sparks

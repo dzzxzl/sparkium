@@ -62,4 +62,25 @@ class ColorClamp: public Node {
     Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
 };
 
+class PerturbNormal: public Node {
+  public:
+    PerturbNormal(SceneInfo* scene_info);
+    ~PerturbNormal() override;
+    void process() override;
+    enum class InSlotName {
+      Normal = 0,
+      PerturbDirection,
+      Scale,
+      Fac
+    };
+    enum class OutSlotName {
+      Normal = 0
+    };
+    int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+    int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
+    Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
+    Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
+    SceneInfo* scene_info_;
+};
+
 } // namespace sparks

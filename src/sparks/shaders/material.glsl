@@ -9,6 +9,10 @@ struct Material {
   float pad1;
   float pad2;
   vec4 pad3;
+  // starting from pad4 is extinction
+  vec4 pad4;
+  vec4 pad5;
+  vec4 pad6;
 };
 
 #define MATERIAL_TYPE_LAMBERTIAN 0

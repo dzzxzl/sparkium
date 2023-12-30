@@ -22,85 +22,237 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
   HitRecord hit_record;
   const int max_bounce = render_settings_->num_bounces;
   std::mt19937 rd(sample ^ x ^ y);
+  ginRay ray(origin, direction);
   for (int i = 0; i < max_bounce; i++) {
-    auto t = scene_->TraceRay(origin, direction, 1e-3f, 1e4f, &hit_record);
-    if (t > 0.0f) {
-      // hit an object
-      // get material
-      auto &material =
-          scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
-      // some tests
-      // if(hit_record.geometry_normal.x < 0.0f) {
-      //   return glm::vec3(1.0f, 0.0f, 0.0f);
+    if(ray.type != ginRay::RayType::Volume) {
+      auto t = scene_->TraceRay(origin, direction, 1e-3f, 1e4f, &hit_record);
+      if (t > 0.0f) {
+        // hit an object
+        // get material
+        auto &material =
+            scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+        // if( hit_record.front_face  ) {
+        //   return glm::vec3(0.0f,1.0f,0.0f);
+        // }
+        // Emission material
+        if (material.material_type == MATERIAL_TYPE_EMISSION) {
+          radiance += throughput * material.emission * material.emission_strength;
+          break; 
+        }
+        // Glass or specular material
+        else if (material.material_type == MATERIAL_TYPE_GLASS || material.material_type == MATERIAL_TYPE_SPECULAR) {
+          origin = hit_record.position;
+          glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
+          direction = glm::vec3(sample);
+          // if refraction and has volume
+          if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
+            if( material.has_volume ) {
+              ray.type = ginRay::RayType::Volume;
+              ray.enterMaterial(&material);
+            }
+          }
+          if(glm::length(direction) < 1e-3f) {
+            break;
+          }
+        }
+        else if (material.material_type == MATERIAL_TYPE_ROUGHGLASS) {
+          origin = hit_record.position;
+          glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
+          direction = glm::vec3(sample);
+          if(glm::length(direction) < 1e-3f) {
+            break;
+          }
+          // if refraction and has volume
+          if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
+            if( material.has_volume ) {
+              ray.type = ginRay::RayType::Volume;
+              ray.enterMaterial(&material);
+            }
+          }
+          float weight = sample.w;
+          throughput *= weight;
+        }
+        // Non-transmissive material
+        else if (
+          material.material_type == MATERIAL_TYPE_LAMBERTIAN || material.material_type == MATERIAL_TYPE_CHECKERBUMP || material.material_type == MATERIAL_TYPE_CHECKER_A) {
+          origin = hit_record.position;
+          auto shader_preset = getShaderPreset(material.material_type);
+          // modify sample light
+          // TODO
+          // add transmittance estimation
+          sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
+          // break;
+          auto old_direction = direction;
+          glm::vec4 sample = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
+          direction = glm::vec3(sample);
+          float weight = sample.w;
+          throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(direction, hit_record.geometry_normal), 0.0f) * weight / GINTAMA_P_RR;
+          if(genRandFloat(0,1) > GINTAMA_P_RR){
+            break;
+          }
+        }
+        else if (
+          material.material_type == MATERIAL_TYPE_VOLUME_A
+        ) {
+          // inside volume
+          // auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+          auto volume = createVolume(&material);
+          // LAND_INFO("max_ext: {}", volume->getMaxExtinction());
+          ray.enterMaterial(&material);
+          ray.origin = hit_record.position;
+          glm::vec3 Lv;
+          glm::vec3 transmittance;
+          glm::vec3 weight;
+          ginRay wo;
+          bool is_hit_end;
+          glm::vec3 cur_orig = hit_record.position;
+          HitRecord end_record;
+          auto res = volume->Integrate(scene_, &cur_orig, &ray, &Lv, &transmittance, &weight, nullptr, &wo, &is_hit_end, &end_record);
+          if(!res) {
+            break; // ?
+          }
+          if (!is_hit_end) {
+            // inside volume
+            // roulette to decide scatter/aborption
+            float xi = genRandFloat(0,1);
+            float scatter_avg = (volume->getScatterAlbedo().x + volume->getScatterAlbedo().y + volume->getScatterAlbedo().z) / 3.0f;
+            if(xi < scatter_avg ) {
+              glm::vec3 scatter_L{0.0f};
+              // scatter
+              // sample light & sample scatter
+              HitRecord temp_hit_record;
+              temp_hit_record.position = cur_orig;
+              volumeSampleLight( scene_, temp_hit_record, scatter_L, {} );
+              scatter_L /= (4.0f * PI);
+              scatter_L *= volume->getScatterAlbedo();
+              Lv += scatter_L;
+            } else {
+              // absorption -> emission
+              Lv += volume->getEmission() / weight;
+            }
+          }
+          // if(transmittance == glm::vec3{0.0f}) {
+          //   return weight * throughput * Lv;
+          // } else {
+          //   return glm::vec3(0.0f);
+          // }
+          radiance += weight * throughput * Lv;
+          throughput *= transmittance;
+          if(glm::length(transmittance) < 1e-3f) {
+            break;
+          }
+          if(is_hit_end) {
+            // do refraction/reflection
+            // TODO
+            // now in single scatter volume, always do refraction
+            if( end_record.hit_entity_id != hit_record.hit_entity_id ) {
+              // now only do lambertian
+              glm::vec3 ranVec = genRandVec3();
+              glm::vec3 end_normal = end_record.geometry_normal;
+              if(glm::dot(ranVec, end_normal) < 0.0f) {
+                ranVec = -ranVec;
+              }
+              wo.origin = end_record.position;
+              wo.direction = ranVec;
+            } else {
+              ray.exitMaterial(&material);
+              ray.type = ginRay::RayType::Camera;
+            }
+          }
+          origin = wo.origin;
+          direction = wo.direction;
+          ray.origin = wo.origin;
+          ray.direction = wo.direction; // <- check
+        }
+        else {
+          // Default material
+          // Shade from environment
+          throughput *= material.albedo_color * glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(hit_record.tex_coord)};
+          origin = hit_record.position;
+          direction = scene_->GetEnvmapLightDirection();
+          radiance += throughput * scene_->GetEnvmapMinorColor();
+          throughput *= std::max(glm::dot(direction, hit_record.normal), 0.0f) * 2.0f;
+          if (scene_->TraceRay(origin, direction, 1e-3f, 1e4f, nullptr) < 0.0f) {
+            radiance += throughput * scene_->GetEnvmapMajorColor();
+          }
+          break;
+        }
+      } else {
+        // hit environment
+        auto envmap_color = glm::vec3(scene_->SampleEnvmap(direction));
+        radiance += throughput * glm::vec3{scene_->SampleEnvmap(direction)};
+        if(glm::length(envmap_color) < 1e-3f) {
+          radiance += throughput * scene_->worldColor;
+        }
+        break;
+      }
+    }
+    else if (ray.type == ginRay::RayType::Volume) {
+      auto material = ray.getMaterial();
+      auto volume = createVolume(material);
+      glm::vec3 Lv;
+      glm::vec3 transmittance;
+      glm::vec3 weight;
+      ginRay wo;
+      bool is_hit_end;
+      glm::vec3 cur_orig = ray.origin;
+      HitRecord end_record;
+      auto res = volume->Integrate(scene_, &cur_orig, &ray, &Lv, &transmittance, &weight, nullptr, &wo, &is_hit_end, &end_record);
+      if(!res) {
+        break; // ?
+      }
+      if (!is_hit_end) {
+        // inside volume
+        // roulette to decide scatter/aborption
+        float xi = genRandFloat(0,1);
+        float scatter_avg = (volume->getScatterAlbedo().x + volume->getScatterAlbedo().y + volume->getScatterAlbedo().z) / 3.0f;
+        if(xi < scatter_avg ) {
+          glm::vec3 scatter_L{0.0f};
+          // scatter
+          // sample light & sample scatter
+          HitRecord temp_hit_record;
+          temp_hit_record.position = cur_orig;
+          volumeSampleLight( scene_, temp_hit_record, scatter_L, {} );
+          scatter_L /= (4.0f * PI);
+          scatter_L *= volume->getScatterAlbedo();
+          Lv += scatter_L;
+        } else {
+          // absorption -> emission
+          Lv += volume->getEmission() / weight;
+        }
+      }
+      // if(transmittance == glm::vec3{0.0f}) {
+      //   return weight * throughput * Lv;
       // } else {
       //   return glm::vec3(0.0f);
       // }
-      // auto smooth_normal = hit_record.normal;
-      // auto geo_normal = hit_record.geometry_normal;
-      // if(glm::length(smooth_normal - geo_normal) < 1e-3f) {
-      //   return glm::vec3(1.0f, 0.0f, 0.0f);
-      // }
-      // Emission material
-      if (material.material_type == MATERIAL_TYPE_EMISSION) {
-        radiance += throughput * material.emission * material.emission_strength;
+      radiance += weight * throughput * Lv;
+      throughput *= transmittance;
+      if(glm::length(transmittance) < 1e-3f) {
         break;
       }
-      // Glass or specular material
-      else if (material.material_type == MATERIAL_TYPE_GLASS || material.material_type == MATERIAL_TYPE_SPECULAR) {
-        origin = hit_record.position;
-        glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
-        direction = glm::vec3(sample);
-        if(glm::length(direction) < 1e-3f) {
-          break;
+      if(is_hit_end) {
+        // do refraction/reflection
+        // TODO
+        // now in single scatter volume, always do refraction
+        if( end_record.hit_entity_id != hit_record.hit_entity_id ) {
+          // now only do lambertian
+          glm::vec3 ranVec = genRandVec3();
+          glm::vec3 end_normal = end_record.geometry_normal;
+          if(glm::dot(ranVec, end_normal) < 0.0f) {
+            ranVec = -ranVec;
+          }
+          wo.origin = end_record.position;
+          wo.direction = ranVec;
+        } else {
+          ray.exitMaterial(material);
+          ray.type = ginRay::RayType::Camera;
         }
       }
-      else if (material.material_type == MATERIAL_TYPE_ROUGHGLASS) {
-        origin = hit_record.position;
-        glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
-        direction = glm::vec3(sample);
-        if(glm::length(direction) < 1e-3f) {
-          break;
-        }
-        float weight = sample.w;
-        throughput *= weight;
-      }
-      // Non-transmissive material
-      else if (
-        material.material_type == MATERIAL_TYPE_LAMBERTIAN || material.material_type == MATERIAL_TYPE_CHECKERBUMP || material.material_type == MATERIAL_TYPE_CHECKER_A) {
-        origin = hit_record.position;
-        auto shader_preset = getShaderPreset(material.material_type);
-        sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
-        break;
-        auto old_direction = direction;
-        glm::vec4 sample = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
-        direction = glm::vec3(sample);
-        float weight = sample.w;
-        throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(direction, hit_record.geometry_normal), 0.0f) * weight / GINTAMA_P_RR;
-        if(genRandFloat(0,1) > GINTAMA_P_RR){
-          break;
-        }
-      }
-      else {
-        // Default material
-        // Shade from environment
-        throughput *= material.albedo_color * glm::vec3{scene_->GetTextures()[material.albedo_texture_id].Sample(hit_record.tex_coord)};
-        origin = hit_record.position;
-        direction = scene_->GetEnvmapLightDirection();
-        radiance += throughput * scene_->GetEnvmapMinorColor();
-        throughput *= std::max(glm::dot(direction, hit_record.normal), 0.0f) * 2.0f;
-        if (scene_->TraceRay(origin, direction, 1e-3f, 1e4f, nullptr) < 0.0f) {
-          radiance += throughput * scene_->GetEnvmapMajorColor();
-        }
-        break;
-      }
-    } else {
-      // hit environment
-      auto envmap_color = glm::vec3(scene_->SampleEnvmap(direction));
-      radiance += throughput * glm::vec3{scene_->SampleEnvmap(direction)};
-      if(glm::length(envmap_color) < 1e-3f) {
-        radiance += throughput * scene_->worldColor;
-      }
-      break;
+      origin = wo.origin;
+      direction = wo.direction;
+      ray.origin = wo.origin;
+      ray.direction = wo.direction; // <- check
     }
   }
   return radiance;
@@ -175,7 +327,7 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     glm::vec half = genRandVec3();
     while(true) {
       float rand_p = genRandFloat(0,1);
-      float ggx_D = GGX_D(normal, half, 0.1f);
+      float ggx_D = GGX_D(normal, half, material.roughness);
       if(rand_p < ggx_D) {
         break;
       }
@@ -237,6 +389,8 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
       if(eme_t > 0.0f) {
         // blocked 
         if(eme_hit_record.hit_entity_id != eme_iter) {
+          // TODO
+          // add transmittance here
           continue;
         } else if(eme_hit_record.position != eme_origin) {
           // continue; ?
@@ -293,6 +447,69 @@ PathTracer::ShaderPreset PathTracer::getShaderPreset(MaterialType material_type)
   }
   else if(material_type == MATERIAL_TYPE_ROUGHGLASS) {
     return ShaderPreset::RoughGlass;
+  }
+}
+
+void PathTracer::volumeSampleLight(const Scene * scene, HitRecord hit_record, glm::vec3 & radiance, glm::vec3 throughput) const
+{
+  for(int eme_iter=0; eme_iter < scene->GetEntityCount(); eme_iter++){
+    auto &eme_material = scene->GetEntity(eme_iter).GetMaterial();
+    if(eme_material.material_type == MATERIAL_TYPE_EMISSION) {
+      HitRecord eme_hit_record;
+      auto eme_origin = scene->GetEntity(eme_iter).getSamplePoint();
+      auto pdf_area = scene->GetEntity(eme_iter).getSurfaceArea();
+      auto eme_direction = glm::normalize(eme_origin - hit_record.position);
+      auto distance = glm::distance(eme_origin, hit_record.position);
+      auto cur_orig = hit_record.position;
+      auto eme_t = scene->TraceRay(hit_record.position, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+      if(eme_t > 0.0f) {
+        glm::vec3 total_transmittance {1.0f};
+        // blocked 
+        auto success = eme_t;
+        while( eme_hit_record.hit_entity_id != eme_iter ) {
+          // get material
+          auto hit_material = scene->GetEntity(eme_hit_record.hit_entity_id).GetMaterial();
+          if(hit_material.has_volume) {
+            // exit or enter
+            bool in_volume = !( eme_hit_record.front_face ^ hit_material.inverse_normal );
+            if(in_volume) {
+              auto volume = createVolume( &hit_material );
+              auto transmittance = volume->Transmittance( scene, &cur_orig, &eme_hit_record.position );
+              float print_rou = genRandFloat(0,1);
+              if(print_rou < 0.001f) {
+                LAND_INFO("transmittance: {}", transmittance.x);
+              }
+              total_transmittance *= transmittance;
+              cur_orig = eme_hit_record.position;
+            } else {
+              // not in volume 
+              // enter a new volume
+              cur_orig = eme_hit_record.position;
+            }
+            success = scene->TraceRay(cur_orig, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+            if(success < 0.0f) {
+              break; // sth wrong - break
+            }
+          } else {
+            // hit a non-volume object
+            total_transmittance *= 0;
+            break;
+          }
+        }
+        if( success < 0.0f ) {
+          continue; // sth wrong - continue
+        }
+        if( glm::length( total_transmittance ) < 1e-3f ) {
+          continue; // blocked
+        }
+        // distance = glm::distance( cur_orig, eme_hit_record.position );
+        radiance += eme_material.emission * eme_material.emission_strength * total_transmittance
+        * pdf_area / (distance * distance)
+        * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
+        / (4.0f * PI)
+        ;
+      }
+    }
   }
 }
 

@@ -501,7 +501,7 @@ void App::UpdateImGui() {
       static int current_item = 0;
       std::vector<const char *> material_types = {
           "Lambertian", "Specular", "Transmissive", "Principled", "Emission",
-          "glass", "checkerBump", "checker_A", "roughGlass"};
+          "glass", "checkerBump", "checker_A", "roughGlass", "volumeA", "glossy"};
       Material &material = scene.GetEntity(selected_entity_id_).GetMaterial();
       reset_accumulation_ |=
           ImGui::Combo("Type", reinterpret_cast<int *>(&material.material_type),
@@ -524,6 +524,18 @@ void App::UpdateImGui() {
       reset_accumulation_ |=
           ImGui::SliderFloat("Roughness", &material.roughness, 0.0f, 1.0f,
                              "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat3(
+          "Extinction", &material.extinction[0], 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Max Extinction", &material.max_extinction, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::ColorEdit3(
+          "Scatter Albedo", &material.scatter_albedo[0],
+          ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
+      reset_accumulation_ |= ImGui::ColorEdit3(
+          "Volume Emission Color", &material.volume_emission_color[0],
+          ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
+      reset_accumulation_ |= ImGui::SliderFloat(
+          "Volume Scale", &material.volume_scale_, 0.0f, 2e2f, "%.3f");
     }
 
 #if !defined(NDEBUG)

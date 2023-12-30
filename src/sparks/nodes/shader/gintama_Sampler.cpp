@@ -20,7 +20,11 @@ sparks::SpecularSampler::~SpecularSampler()
 
 void sparks::SpecularSampler::process()
 {
-
+    glm::vec3 out_direction = scene_info_->light_record_.reflected;
+    glm::vec3 normal = scene_info_->hit_record_.geometry_normal;
+    auto entity_id = scene_info_->hit_record_.hit_entity_id;
+    auto material = scene_info_->scene_->GetEntity(entity_id).GetMaterial();
+    
 }
 
 sparks::RoughGlassSampler::RoughGlassSampler(SceneInfo * scene_info)
