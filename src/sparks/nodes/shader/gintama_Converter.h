@@ -134,4 +134,21 @@ class Inverter: public Node {
     Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
 };
 
+class Color2Fac: public Node {
+  public:
+    Color2Fac();
+    ~Color2Fac() override;
+    void process() override;
+    enum class InSlotName {
+      Color = 0
+    };
+    enum class OutSlotName {
+      Fac = 0
+    };
+    int slotID(OutSlotName slot_name) { return static_cast<int>(slot_name); }
+    int slotID(InSlotName slot_name) { return static_cast<int>(slot_name); }
+    Slot * getOutSlot(OutSlotName slot_name) { return out_slots_[slotID(slot_name)]; }
+    Slot * getInSlot(InSlotName slot_name) { return in_slots_[slotID(slot_name)]; }
+};
+
 } // namespace sparks

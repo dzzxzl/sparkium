@@ -22,7 +22,8 @@ std::unordered_map<std::string, MaterialType> material_name_map{
     {"glossy", MATERIAL_TYPE_GLOSSY},
     {"noise_A", MATERIAL_TYPE_NOISE_A},
     {"rust", MATERIAL_TYPE_RUST},
-    {"roughGlassNode", MATERIAL_TYPE_ROUGHGLASS_NODE}};
+    {"roughGlassNode", MATERIAL_TYPE_ROUGHGLASS_NODE},
+    {"water", MATERIAL_TYPE_WATER}};
 }
 
 Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
@@ -89,6 +90,23 @@ Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
   child_element = material_element->FirstChildElement("has_volume");
   if (child_element) {
     has_volume = std::stoi(child_element->FindAttribute("value")->Value()) != 0;
+  }
+
+  child_element = material_element->FirstChildElement("scatter_albedo");
+  if (child_element) {
+    scatter_albedo =
+        StringToVec3(child_element->FindAttribute("value")->Value());
+  }
+
+  child_element = material_element->FirstChildElement("volume_scale");
+  if (child_element) {
+    volume_scale_ = std::stof(child_element->FindAttribute("value")->Value());
+  }
+
+  child_element = material_element->FirstChildElement("volume_emission_color");
+  if (child_element) {
+    volume_emission_color =
+        StringToVec3(child_element->FindAttribute("value")->Value());
   }
 
   material_type =

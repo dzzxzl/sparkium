@@ -20,6 +20,7 @@ enum MaterialType : int {
   MATERIAL_TYPE_NOISE_A = 11,
   MATERIAL_TYPE_RUST = 12,
   MATERIAL_TYPE_ROUGHGLASS_NODE = 13,
+  MATERIAL_TYPE_WATER = 14,
 };
 
 class Scene;
@@ -70,6 +71,16 @@ struct Material {
   float ramp_pos_2_{0.505f};
   glm::vec3 ramp_color_3_{0.482f};
   float ramp_pos_3_{0.605f};
+
+  // here is for rough glass globe
+  glm::vec3 rough_glass_ramp_color_{1.0f};
+  float rough_glass_ramp_pos_{0.059f};
+
+  // here is water
+  float water_ramp_pos_1_{0.1f};
+  float water_ramp_pos_2_{0.9f};
+  float water_bump_strength_{0.9f};
+  float pad6[1]{};
 
   Material() = default;
   explicit Material(const glm::vec3 &albedo);

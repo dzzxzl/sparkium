@@ -75,7 +75,8 @@ void Bump::process() {
         scene_info_->hit_record_.tex_coord.y -= dx;
         float diffx = glm::length( (height_dx - height) / dx ) / sqrt(3.0f);
         float diffy = glm::length( (height_dy - height) / dx ) / sqrt(3.0f);
-        out_normal = - diffx * e_u + diffy * e_v + 1.0f * normal_;
+        auto bump_strength = getFloat(in_slots_[0]);
+        out_normal = (- diffx * e_u + diffy * e_v) * bump_strength + 1.0f * normal_;
         out_normal = glm::normalize(out_normal);
         if (glm::dot(out_normal, reflection_) < 0.0f) {
             out_normal = normal_;

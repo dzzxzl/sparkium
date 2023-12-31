@@ -70,7 +70,7 @@
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
             <shade_smooth value="1"/>
-            <albedo_texture value="../../textures/toshi.jpg"/>
+            <albedo_texture value="../../textures/earth.jpg"/>
         </material>
     </model>
 

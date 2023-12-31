@@ -502,7 +502,7 @@ void App::UpdateImGui() {
       std::vector<const char *> material_types = {
           "Lambertian", "Specular", "Transmissive", "Principled", "Emission",
           "glass", "checkerBump", "checker_A", "roughGlass", "volumeA", "glossy",
-          "noise_A","rust", "roughGlassNode"};
+          "noise_A","rust", "roughGlassNode","water"};
       Material &material = scene.GetEntity(selected_entity_id_).GetMaterial();
       reset_accumulation_ |=
           ImGui::Combo("Type", reinterpret_cast<int *>(&material.material_type),
@@ -574,7 +574,18 @@ void App::UpdateImGui() {
           ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
       reset_accumulation_ |= ImGui::SliderFloat(
           "Ramp Position 3", &material.ramp_pos_3_, 0.0f, 1.0f, "%.3f");
-          reset_accumulation_ |= ImGui::Checkbox("inverter invert", &material.inverter_invert);
+      reset_accumulation_ |= ImGui::Checkbox("inverter invert", &material.inverter_invert);
+      reset_accumulation_ |= ImGui::ColorEdit3(
+        "rough glass ramp color 1", &material.rough_glass_ramp_color_[0],
+        ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_Float);
+      reset_accumulation_ |= ImGui::SliderFloat(
+        "rough glass ramp position", &material.rough_glass_ramp_pos_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+        "water ramp pos 1", &material.water_ramp_pos_1_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+        "water ramp pos 2", &material.water_ramp_pos_2_, 0.0f, 1.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+        "water bump strength", &material.water_bump_strength_, 0.0f, 1.0f, "%.3f");
     }
 
 #if !defined(NDEBUG)

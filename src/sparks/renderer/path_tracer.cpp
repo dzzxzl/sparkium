@@ -50,7 +50,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           // TODO
           // add transmittance estimation
           sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
-          break;
+          // break;
           ray.type = ginRay::RayType::NonCamera;
           glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
           direction = glm::vec3(sample);
@@ -61,6 +61,23 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           if(glm::length(throughput) < 1e-3f) {
             break;
           }
+        }
+        else if(material.material_type == MATERIAL_TYPE_WATER) {
+          origin = hit_record.position;
+          glm::vec4 sample = importanceSample_use_node(hit_record, -direction, material.material_type);
+          direction = glm::vec3(sample);
+          if(glm::length(direction) < 1e-3f) {
+            break;
+          }
+          // if refraction and has volume
+          if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
+            if( material.has_volume ) {
+              ray.type = ginRay::RayType::Volume;
+              ray.enterMaterial(&material);
+            }
+          }
+          float weight = sample.w;
+          throughput *= weight;
         }
         // Glass or specular material
         else if (material.material_type == MATERIAL_TYPE_GLASS 
@@ -127,12 +144,13 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           // TODO
           // add transmittance estimation
           sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
-          break;
+          // break;
           auto old_direction = direction;
           glm::vec4 sample = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
           direction = glm::vec3(sample);
           float weight = sample.w;
           throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(direction, hit_record.geometry_normal), 0.0f) * weight / GINTAMA_P_RR;
+          ray.type = ginRay::RayType::NonCamera;
           if(genRandFloat(0,1) > GINTAMA_P_RR){
             break;
           }
@@ -174,6 +192,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
               Lv += scatter_L;
             } else {
               // absorption -> emission
+              // Lv += volume->getEmission() / weight;
               Lv += volume->getEmission() / weight;
             }
           }
@@ -431,8 +450,18 @@ glm::vec4 PathTracer::importanceSample_use_node(HitRecord hit_record, glm::vec3 
     LightRecord light_record;
     light_record.reflected = reflection;
     SceneInfo* scene_info = new SceneInfo{scene_, hit_record, light_record};
+    // LAND_INFO("here");
+    // return glm::vec4{0.0f};
     return Presets::sampleRoughGlass(scene_info);
-  } else {
+  } 
+
+  else if(material_type == MATERIAL_TYPE_WATER) {
+    LightRecord light_record;
+    light_record.reflected = reflection;
+    SceneInfo* scene_info = new SceneInfo{scene_, hit_record, light_record};
+    return Presets::sampleWater(scene_info);
+  }
+  else {
     return glm::vec4();
   }
 }
@@ -473,6 +502,39 @@ glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, Ligh
   }
 }
 
+// void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3 reflection, ShaderPreset shader_preset, glm::vec3 &radiance, glm::vec3 throughput) const {
+
+//   for(int eme_iter=0; eme_iter < scene->GetEntityCount(); eme_iter++){
+//     auto &eme_material = scene->GetEntity(eme_iter).GetMaterial();
+//     if(eme_material.material_type == MATERIAL_TYPE_EMISSION) {
+//       HitRecord eme_hit_record;
+//       auto eme_origin = scene->GetEntity(eme_iter).getSamplePoint();
+//       auto pdf_area = scene->GetEntity(eme_iter).getSurfaceArea();
+//       auto eme_direction = glm::normalize(eme_origin - hit_record.position);
+//       auto distance = glm::distance(eme_origin, hit_record.position);
+//       auto eme_t = scene->TraceRay(hit_record.position, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+//       if(eme_t > 0.0f) {
+//         // blocked 
+//         if(eme_hit_record.hit_entity_id != eme_iter) {
+//           // TODO
+//           // add transmittance here
+//           continue;
+//         } else if(eme_hit_record.position != eme_origin) {
+//           // continue; ?
+//         }
+//         radiance += throughput * eme_material.emission * eme_material.emission_strength 
+//         * pdf_area / (distance * distance)
+//         * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
+//         * std::max(glm::dot(eme_direction, hit_record.geometry_normal), 0.0f)
+//         * surfaceBSDF(scene, hit_record, {-eme_direction, reflection}, shader_preset)
+//         ;
+//       }
+//     }
+//   }
+
+// }
+
+// added transmittance
 void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3 reflection, ShaderPreset shader_preset, glm::vec3 &radiance, glm::vec3 throughput) const {
 
   for(int eme_iter=0; eme_iter < scene->GetEntityCount(); eme_iter++){
@@ -483,15 +545,47 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
       auto pdf_area = scene->GetEntity(eme_iter).getSurfaceArea();
       auto eme_direction = glm::normalize(eme_origin - hit_record.position);
       auto distance = glm::distance(eme_origin, hit_record.position);
+      auto cur_orig = hit_record.position;
       auto eme_t = scene->TraceRay(hit_record.position, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
       if(eme_t > 0.0f) {
+        glm::vec3 total_transmittance {1.0f};
         // blocked 
-        if(eme_hit_record.hit_entity_id != eme_iter) {
-          // TODO
-          // add transmittance here
-          continue;
-        } else if(eme_hit_record.position != eme_origin) {
-          // continue; ?
+        auto success = eme_t;
+        while( eme_hit_record.hit_entity_id != eme_iter ) {
+          // get material
+          auto hit_material = scene->GetEntity(eme_hit_record.hit_entity_id).GetMaterial();
+          if(hit_material.has_volume) {
+            // exit or enter
+            bool in_volume = !( eme_hit_record.front_face ^ hit_material.inverse_normal );
+            if(in_volume) {
+              auto volume = createVolume( &hit_material );
+              auto transmittance = volume->Transmittance( scene, &cur_orig, &eme_hit_record.position );
+              float print_rou = genRandFloat(0,1);
+              if(print_rou < 0.001f) {
+                LAND_INFO("transmittance: {}", transmittance.x);
+              }
+              total_transmittance *= transmittance;
+              cur_orig = eme_hit_record.position;
+            } else {
+              // not in volume 
+              // enter a new volume
+              cur_orig = eme_hit_record.position;
+            }
+            success = scene->TraceRay(cur_orig, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+            if(success < 0.0f) {
+              break; // sth wrong - break
+            }
+          } else {
+            // hit a non-volume object
+            total_transmittance *= 0;
+            break;
+          }
+        }
+        if( success < 0.0f ) {
+          continue; // sth wrong - continue
+        }
+        if( glm::length( total_transmittance ) < 1e-3f ) {
+          continue; // blocked
         }
         radiance += throughput * eme_material.emission * eme_material.emission_strength 
         * pdf_area / (distance * distance)
@@ -499,6 +593,20 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
         * std::max(glm::dot(eme_direction, hit_record.geometry_normal), 0.0f)
         * surfaceBSDF(scene, hit_record, {-eme_direction, reflection}, shader_preset)
         ;
+        // // blocked 
+        // if(eme_hit_record.hit_entity_id != eme_iter) {
+        //   // TODO
+        //   // add transmittance here
+        //   continue;
+        // } else if(eme_hit_record.position != eme_origin) {
+        //   // continue; ?
+        // }
+        // radiance += throughput * eme_material.emission * eme_material.emission_strength 
+        // * pdf_area / (distance * distance)
+        // * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
+        // * std::max(glm::dot(eme_direction, hit_record.geometry_normal), 0.0f)
+        // * surfaceBSDF(scene, hit_record, {-eme_direction, reflection}, shader_preset)
+        // ;
       }
     }
   }
@@ -619,7 +727,6 @@ void PathTracer::volumeSampleLight(const Scene * scene, HitRecord hit_record, gl
         radiance += eme_material.emission * eme_material.emission_strength * total_transmittance
         * pdf_area / (distance * distance)
         * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
-        / (4.0f * PI)
         ;
       }
     }

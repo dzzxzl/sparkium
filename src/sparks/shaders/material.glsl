@@ -24,6 +24,10 @@ struct Material {
   vec4 pad11;
   vec4 pad12;
   vec4 pad13;
+  // here rough glass globe
+  vec4 pad14;
+  // here is water
+  vec4 pad15;
   
 };
 

@@ -21,6 +21,7 @@ class Presets {
     static glm::vec3 glossy(SceneInfo* scene_info);
     static glm::vec3 rust(SceneInfo* scene_info);
     static glm::vec4 sampleRoughGlass(SceneInfo* scene_info);
+    static glm::vec4 sampleWater(SceneInfo* scene_info);
 };
 
 

@@ -65,14 +65,18 @@ void sparks::RoughGlassSampler::process()
     auto material = scene_info_->scene_->GetEntity(scene_info_->hit_record_.hit_entity_id).GetMaterial();
     auto hit_record = scene_info_->hit_record_;
     auto reflection = scene_info_->light_record_.reflected;
+    auto normal = hit_record.geometry_normal;
+    if(in_slots_[ slotID(InSlotName::Normal)]->lastNode_ != nullptr) {
+        normal = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Normal) ])->value_;
+    }
     if (roughness < 1e-3f) {
         // treat as glass
         auto IOR = material.IOR;
         bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
-        glm::vec3 glass_normal = hit_record.geometry_normal;
-        if(material.shade_smooth){
-        glass_normal = hit_record.normal;
-        }
+        glm::vec3 glass_normal = normal;
+        // if(material.shade_smooth){
+        // glass_normal = hit_record.normal;
+        // }
         // bool in_glass = glm::dot(-reflection, hit_record.geometry_normal) > 0.0f;
         if(in_glass) {
             float cos_theta = glm::dot(reflection, glass_normal);

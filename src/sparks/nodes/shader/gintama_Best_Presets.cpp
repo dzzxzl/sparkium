@@ -134,17 +134,23 @@ glm::vec4 Presets::sampleRoughGlass(SceneInfo * scene_info)
     TextureSampleAbsolute texSamp(scene_info);
     RoughGlassSampler roughGlass(scene_info);
     ColorClamp colorClamp;
+    Color2Fac color2Fac;
+    Inverter inverter;
 
-    texSamp.link( &colorClamp, 0, 0 );
-    colorClamp.link( &roughGlass, 0, 2 );
+    texSamp.link( &inverter, 0, 0 );
+    inverter.link( &colorClamp, 0, 0 );
+    colorClamp.link( &color2Fac, 0, 0 );
+    color2Fac.link( &roughGlass, 0, 2 );
+    
 
     auto material = scene_info->scene_->GetEntity(scene_info->hit_record_.hit_entity_id).GetMaterial();
+    inverter.invert_ = material.inverter_invert;
     setVec3( roughGlass.in_slots_[0], scene_info->hit_record_.normal );
     setFloat( roughGlass.in_slots_[1], material.IOR );
 
     // set color clamp color
     // use material.inter_pos_1_ and material.ramp_color_1_
-    colorClamp.setColor( material.ramp_color_1_, material.inter_pos_1_ );
+    colorClamp.setColor( glm::vec3{ rgbtoGray( material.rough_glass_ramp_color_ )}, material.rough_glass_ramp_pos_ );
     // set 1 color is enough
 
     // bind texsamp parameter
@@ -158,7 +164,45 @@ glm::vec4 Presets::sampleRoughGlass(SceneInfo * scene_info)
     auto weight = getFloat( roughGlass.out_slots_[1] );
     glm::vec4 res = glm::vec4( direction, weight );
     return res;
-        
+
+}
+
+glm::vec4 Presets::sampleWater(SceneInfo * scene_info)
+{
+    // LAND_INFO("here");
+    TextureSampleAbsolute texSamp(scene_info);
+    RoughGlassSampler roughGlass(scene_info);
+    Bump bump(scene_info);
+    ColorRamp colorRamp;
+    auto material = scene_info->scene_->GetEntity(scene_info->hit_record_.hit_entity_id).GetMaterial();
+    auto pos_1 = material.water_ramp_pos_1_;
+    auto pos_2 = material.water_ramp_pos_2_;
+    colorRamp.setColor(glm::vec3{0.0f}, pos_1);
+    colorRamp.setColor(glm::vec3{1.0f}, pos_2);
+    texSamp.offset_x = material.text_offset_x_;
+    texSamp.offset_y = material.text_offset_y_;
+    texSamp.scale_x = material.text_scale_x_;
+    texSamp.scale_y = material.text_scale_y_;
+    auto entity_id = scene_info->hit_record_.hit_entity_id;
+
+    setEnum(bump.in_slots_[1], 2);
+    setFloat(roughGlass.in_slots_[1], material.IOR);
+    setFloat(roughGlass.in_slots_[2], 0.0f);
+    setFloat(bump.in_slots_[0], material.water_bump_strength_);
+
+    Inverter inverter;
+    inverter.invert_ = material.inverter_invert;
+
+    texSamp.link(&inverter, 0, 0); 
+    inverter.link(&colorRamp, 0, 0);
+    colorRamp.link(&bump, 0, 2);
+    bump.link(&roughGlass, 0, 0);
+
+    roughGlass.process();
+    glm::vec3 res_dir = getVec3(roughGlass.out_slots_[0]);
+    float res_weight = getFloat(roughGlass.out_slots_[1]);
+    glm::vec4 res = glm::vec4(res_dir, res_weight);
+    return res;
 }
 
 }

@@ -26,7 +26,8 @@ class PathTracer {
     Glossy,
     NoiseA,
     Rust,
-    RoughGlassNode
+    RoughGlassNode,
+    Water
   };
   PathTracer(const RendererSettings *render_settings, const Scene *scene);
   [[nodiscard]] glm::vec3 SampleRay(glm::vec3 origin,

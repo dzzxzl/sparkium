@@ -257,6 +257,44 @@ void Inverter::process()
     }
 }
 
+Color2Fac::Color2Fac()
+{
+    in_slots_.resize(1);
+    out_slots_.resize(1);
+    in_slots_[0] = new Vec3Slot(glm::vec3(0.0f, 0.0f, 0.0f));
+    out_slots_[0] = new FloatSlot(0.0f);
+    out_slots_[0]->slotType_ = Slot::SlotType::output;
+}
+
+Color2Fac::~Color2Fac()
+{
+    for (auto& slot : in_slots_) {
+        delete slot;
+    }
+    for (auto& slot : out_slots_) {
+        delete slot;
+    }
+}
+
+void Color2Fac::process()
+{
+    // process all input slots
+    for(int i=0; i<1; i++){
+        if(in_slots_[i]->lastNode_ != nullptr) {
+            in_slots_[i]->lastNode_->process();
+        }
+    }
+    // process current node
+    glm::vec3 in_color = static_cast<Vec3Slot*>(in_slots_[0])->value_;
+    float res_fac = rgbtoGray(in_color);
+    static_cast<FloatSlot*>(out_slots_[0])->value_ = res_fac;
+    // push to next node
+    if(out_slots_[0]->nextNode_ != nullptr) {
+        auto next_slot = out_slots_[0]->nextNode_->in_slots_[out_slots_[0]->nextSlotId_];
+        static_cast<FloatSlot*>(next_slot)->value_ = res_fac;
+    }
+}
+
 } // namespace sparks
 sparks::PerturbNormal::PerturbNormal(SceneInfo * scene_info): scene_info_(scene_info)
 {

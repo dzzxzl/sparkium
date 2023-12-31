@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scene>
+
+    <camera>
+        <transform type="lookat">
+            <eye value="693 735 496"/>
+            <center value="0.0 0.0 0.0"/>
+            <up value="0.0 1.0 0.0"/>
+        </transform>
+        <fov value="32"/>
+        <speed value="100"/>
+    </camera>
+
+    <model name="Area">
+        <vertex position="408 301 -1009"/>
+        <vertex position="608 301 -809"/>
+        <vertex position="608 -101 -809"/>
+        <vertex position="408 -101 -1009"/>
+
+        <index value="0"/>
+        <index value="1"/>
+        <index value="3"/>
+        <index value="3"/>
+        <index value="1"/>
+        <index value="2"/>
+
+        <material type="emission">
+            <emission value="1.0 1.0 1.0"/>
+            <emission_strength value="100.0"/>
+        </material>
+    </model>
+
+    
+    <model type="obj" name="water">
+        <filename value="../../meshes/water-waterbox.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="water">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+            <albedo_texture value="../../textures/smoothed_moon.png"/>
+            <!-- <has_volume value="1"/>
+            <volume_scale value="20"/>
+            <scatter_albedo value="0.6 0.6 0.6"/>
+            <volume_emission_color value="0.24 0.98 0.539"/> -->
+        </material>
+    </model>
+
+    <model type="obj" name="temp_volume">
+        <filename value="../../meshes/water-waterbox.obj"/>
+        <transform type="world">
+            <scale value="99 99 99"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="volumeA">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+            <has_volume value="1"/>
+            <volume_scale value="20"/>
+            <scatter_albedo value="0.6 0.6 0.6"/>
+            <volume_emission_color value="0.24 0.98 0.539"/>
+        </material>
+    </model>
+
+    <model type="obj" name="tilt_tower">
+        <filename value="../../meshes/water-tilt-tower.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="lambertian">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+        </material>
+    </model>
+
+    <model type="obj" name="up_tower">
+        <filename value="../../meshes/water-up-tower.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="lambertian">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+        </material>
+    </model>
+
+</scene>
