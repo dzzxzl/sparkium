@@ -26,7 +26,7 @@
 
         <material type="emission">
             <emission value="1.0 1.0 1.0"/>
-            <emission_strength value="20.0"/>
+            <emission_strength value="50.0"/>
         </material>
     </model>
 
@@ -42,31 +42,32 @@
         </material>
     </model>
 
-    <!-- <model type="obj" name="Sphere">
+    <model type="obj" name="Sphere">
         <filename value="../../meshes/checker_sphere.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
             <translation value="0.0 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
-        <material type="glossy">
+        <material type="checkerBump">
             <albedo value="1.0 1.0 1.0"/>
             <shade_smooth value="1"/>
         </material>
-    </model> -->
+    </model>
 
-    <model type="obj" name="Short Block">
+    <!-- <model type="obj" name="Short Block">
         <filename value="../../meshes/oh_this_is_not_an_ordinary_cube.obj"/>
         <transform type="world">
             <scale value="80 80 80"/>
             <translation value="0 0 0"/>
-            <rotation value="0 0 0"/>
+            <rotation value="0 135 0"/>
         </transform>
-        <material type="glossy">
+        <material type="checkerBump">
             <albedo value="1 1 1"/>
             <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
         </material>
-    </model>
+    </model> -->
 
 
 </scene>

@@ -45,22 +45,21 @@
         </material>
     </model>
 
-    <!-- <model type="obj" name="Sphere">
+    <model type="obj" name="Sphere">
         <filename value="../../meshes/3-sphere.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
             <translation value="0.0 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
-        <material type="noise_A">
+        <material type="glossy">
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
             <shade_smooth value="1"/>
-            <albedo_texture value="../../textures/toshi.jpg"/>
         </material>
-    </model> -->
+    </model>
 
-    <model type="obj" name="Suzzane">
+    <!-- <model type="obj" name="Suzzane">
         <filename value="../../meshes/monkey.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
@@ -73,7 +72,7 @@
             <shade_smooth value="1"/>
             <albedo_texture value="../../textures/moon.png"/>
         </material>
-    </model>
+    </model> -->
 
 
 

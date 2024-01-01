@@ -145,5 +145,7 @@ glm::vec3 sparks::SingleScatterHeterogeneousVolume::Transmittance(const Scene * 
 {
     float distance = glm::distance(*p0, *p1);
     return glm::vec3{exp(-distance * extinction_.x * maxExtinction_ / volume_scale_), exp(-distance * extinction_.y * maxExtinction_ / volume_scale_), exp(-distance * extinction_.z * maxExtinction_ / volume_scale_)};
+    // return glm::vec3{exp(-distance * extinction_.x * maxExtinction_ ), exp(-distance * extinction_.y * maxExtinction_ ), exp(-distance * extinction_.z * maxExtinction_ )};
+    // return glm::vec3{0.0f};
     // return glm::vec3(0.0f);
 }

@@ -42,7 +42,7 @@ struct Material {
   glm::vec3 extinction{1.0f};
   float max_extinction{0.1f};
   glm::vec3 scatter_albedo{1.0f};
-  float volume_scale_{1.0f};
+  float volume_scale_{10.0f};
   glm::vec3 volume_emission_color{0.0f};
   // some more bools
   bool inverter_invert{true};

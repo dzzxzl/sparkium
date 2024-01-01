@@ -35,6 +35,7 @@ void DiffuseBSDF::process() {
         normal = scene_info_->hit_record_.normal;
     }
     if(in_slots_[ slotID(InSlotName::Normal) ]->lastNode_ != nullptr) {
+        LAND_INFO("normal");
         normal = static_cast<Vec3Slot*>(in_slots_[ slotID(InSlotName::Normal) ])->value_;
     }
     glm::vec3 in_color = getVec3(in_slots_[ slotID(InSlotName::Color) ]);
@@ -43,7 +44,9 @@ void DiffuseBSDF::process() {
 
     glm::vec3 res_color = in_color / PI;
 
-    float diffusive_factor = std::max(glm::dot(normal, -incident_), 0.0f) * std::max(glm::dot(normal, reflected_), 0.0f);
+    float diffusive_factor = 
+     std::max(glm::dot(normal, -incident_), 0.0f) *
+     std::max(glm::dot(normal, reflected_), 0.0f);
 
     if (diffusive_factor == 0.0f) {
         res_color = glm::vec3(0.0f);
@@ -51,6 +54,9 @@ void DiffuseBSDF::process() {
         float geo_fac = glm::dot( -incident_, scene_info_->hit_record_.geometry_normal );
         float act_fac = glm::dot( -incident_, normal );
         res_color *= act_fac / geo_fac;
+            LAND_INFO("baga {} -> {} -> {}", act_fac, 1, res_color.z);
+        if(glm::length(res_color) < 0.0001f) {
+        }
     }
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = res_color;
     // push to next node

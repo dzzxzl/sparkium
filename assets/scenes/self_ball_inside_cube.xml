@@ -46,7 +46,7 @@
         <filename value="../../meshes/volume_square.obj"/>
         <transform type="world">
             <scale value="50 50 50"/>
-            <translation value="0.0 0.0 0.0"/>
+            <translation value="56.73 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
         <material type="volumeA">
@@ -60,7 +60,7 @@
         <filename value="../../meshes/volume_square.obj"/>
         <transform type="world">
             <scale value="20 20 20"/>
-            <translation value="0.0 0.0 0.0"/>
+            <translation value="-59.87 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
         <material type="lambertian">

@@ -149,7 +149,9 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           glm::vec4 sample = importanceSample(hit_record, -old_direction, MATERIAL_TYPE_LAMBERTIAN);
           direction = glm::vec3(sample);
           float weight = sample.w;
-          throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) * std::max(glm::dot(direction, hit_record.geometry_normal), 0.0f) * weight / GINTAMA_P_RR;
+          throughput *= surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) 
+            * std::max(glm::dot(direction, hit_record.geometry_normal), 0.0f) 
+            * weight / GINTAMA_P_RR;
           ray.type = ginRay::RayType::NonCamera;
           if(genRandFloat(0,1) > GINTAMA_P_RR){
             break;
@@ -163,6 +165,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           auto volume = createVolume(&material);
           // LAND_INFO("max_ext: {}", volume->getMaxExtinction());
           ray.enterMaterial(&material);
+          ray.type = ginRay::RayType::Volume;
           ray.origin = hit_record.position;
           glm::vec3 Lv;
           glm::vec3 transmittance;
@@ -177,10 +180,11 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           }
           if (!is_hit_end) {
             // inside volume
-            // roulette to decide scatter/aborption
+            // roulette to decide scatter/absorption
             float xi = genRandFloat(0,1);
             float scatter_avg = (volume->getScatterAlbedo().x + volume->getScatterAlbedo().y + volume->getScatterAlbedo().z) / 3.0f;
             if(xi < scatter_avg ) {
+
               glm::vec3 scatter_L{0.0f};
               // scatter
               // sample light & sample scatter
@@ -203,6 +207,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           // }
           radiance += weight * throughput * Lv;
           throughput *= transmittance;
+          // LAND_INFO("throughput:{}->{}->{}", throughput.x, throughput.y, throughput.z);
           if(glm::length(transmittance) < 1e-3f) {
             break;
           }
@@ -212,6 +217,14 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
             // now in single scatter volume, always do refraction
             if( end_record.hit_entity_id != hit_record.hit_entity_id ) {
               // now only do lambertian
+              // return glm::vec3(1.0f, 0.0f, 0.0f);
+              // you forgot to sample light!
+              auto end_material = scene_->GetEntity(end_record.hit_entity_id).GetMaterial();
+              auto end_shader_preset = getShaderPreset(end_material.material_type);
+              if(end_material.material_type == MATERIAL_TYPE_EMISSION) {
+                LAND_INFO("?");
+              }
+              sampleLight(scene_, end_record, -wo.direction, end_shader_preset, radiance, throughput);
               glm::vec3 ranVec = genRandVec3();
               glm::vec3 end_normal = end_record.geometry_normal;
               if(glm::dot(ranVec, end_normal) < 0.0f) {
@@ -220,9 +233,32 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
               wo.origin = end_record.position;
               wo.direction = ranVec;
             } else {
+              // LAND_INFO("exit material because once hit volume, it goes out free");
               ray.exitMaterial(&material);
-              ray.type = ginRay::RayType::Camera;
+              ray.type = ginRay::RayType::NonCamera;
             }
+            // auto end_material = scene_->GetEntity(end_record.hit_entity_id).GetMaterial();
+            // if( end_material.material_type == MATERIAL_TYPE_WATER ) {
+            // // do importance sampling_use node
+            //   glm::vec4 end_samp = importanceSample_use_node(end_record, -wo.direction, end_material.material_type);
+            //   // LAND_INFO("yo");
+            //   wo.direction = glm::vec3(end_samp);
+            //   wo.origin = end_record.position;
+            //   throughput *= end_samp.w;
+            // } else {
+            //   // do importance sampling
+            //   if(end_material.material_type == MATERIAL_TYPE_LAMBERTIAN) {
+            //     // LAND_INFO("hey");
+            //   }
+            //   glm::vec4 end_samp = importanceSample(end_record, -wo.direction, end_material.material_type);
+            //   wo.direction = glm::vec3(end_samp);
+            //   wo.origin = end_record.position;
+            //   throughput *= end_samp.w;
+            // }
+            // if( glm::dot( wo.direction, end_record.normal ) < 0.0f ) {
+            //   ray.exitMaterial(&material);
+            //   ray.type = ginRay::RayType::Camera;
+            // }
           }
           origin = wo.origin;
           direction = wo.direction;
@@ -253,6 +289,8 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       }
     }
     else if (ray.type == ginRay::RayType::Volume) {
+      // break;
+      LAND_INFO("ever here");
       auto material = ray.getMaterial();
       auto volume = createVolume(material);
       glm::vec3 Lv;
@@ -300,18 +338,45 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         // do refraction/reflection
         // TODO
         // now in single scatter volume, always do refraction
-        if( end_record.hit_entity_id != hit_record.hit_entity_id ) {
-          // now only do lambertian
-          glm::vec3 ranVec = genRandVec3();
-          glm::vec3 end_normal = end_record.geometry_normal;
-          if(glm::dot(ranVec, end_normal) < 0.0f) {
-            ranVec = -ranVec;
-          }
-          wo.origin = end_record.position;
-          wo.direction = ranVec;
-        } else {
+        auto end_material = scene_->GetEntity(end_record.hit_entity_id).GetMaterial();
+        // if( end_record.hit_entity_id != hit_record.hit_entity_id ) {
+        //   // now only do lambertian
+        //   glm::vec3 ranVec = genRandVec3();
+        //   glm::vec3 end_normal = end_record.geometry_normal;
+        //   if(glm::dot(ranVec, end_normal) < 0.0f) {
+        //     ranVec = -ranVec;
+        //   }
+        //   wo.origin = end_record.position;
+        //   wo.direction = ranVec;
+        // } else {
+        //   ray.exitMaterial(material);
+        //   ray.type = ginRay::RayType::Camera;
+        // }
+        if (end_record.hit_entity_id == hit_record.hit_entity_id) {
+          // still this volume
+          // then go through it 
+          // TODO 
+          // when light does not trivially go through the volume, e.g. when in water
           ray.exitMaterial(material);
-          ray.type = ginRay::RayType::Camera;
+          ray.type = ginRay::RayType::NonCamera;
+        }
+        // else if( end_material.material_type == MATERIAL_TYPE_WATER ) {
+        //   // do importance sampling_use node
+        //   glm::vec4 end_samp = importanceSample_use_node(end_record, -wo.direction, end_material.material_type);
+        //   wo.direction = glm::vec3(end_samp);
+        //   wo.origin = end_record.position;
+        //   throughput *= end_samp.w;
+        // } 
+        else {
+          // do importance sampling
+          glm::vec4 end_samp = importanceSample(end_record, -wo.direction, end_material.material_type);
+          wo.direction = glm::vec3(end_samp);
+          wo.origin = end_record.position;
+          throughput *= end_samp.w;
+          if( glm::dot( wo.direction, end_record.normal ) < 0.0f ) {
+            ray.exitMaterial(material);
+            ray.type = ginRay::RayType::NonCamera;
+          }
         }
       }
       origin = wo.origin;
@@ -562,7 +627,7 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
               auto transmittance = volume->Transmittance( scene, &cur_orig, &eme_hit_record.position );
               float print_rou = genRandFloat(0,1);
               if(print_rou < 0.001f) {
-                LAND_INFO("transmittance: {}", transmittance.x);
+                // LAND_INFO("transmittance: {}", transmittance.x);
               }
               total_transmittance *= transmittance;
               cur_orig = eme_hit_record.position;
@@ -587,8 +652,11 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
         if( glm::length( total_transmittance ) < 1e-3f ) {
           continue; // blocked
         }
-        radiance += throughput * eme_material.emission * eme_material.emission_strength 
-        * pdf_area / (distance * distance)
+        
+        radiance += eme_material.emission_strength 
+        * throughput * eme_material.emission
+        * pdf_area / (distance * distance) 
+        * total_transmittance
         * std::max(glm::dot(-eme_direction, eme_hit_record.geometry_normal), 0.0f)
         * std::max(glm::dot(eme_direction, hit_record.geometry_normal), 0.0f)
         * surfaceBSDF(scene, hit_record, {-eme_direction, reflection}, shader_preset)
@@ -698,7 +766,7 @@ void PathTracer::volumeSampleLight(const Scene * scene, HitRecord hit_record, gl
               auto transmittance = volume->Transmittance( scene, &cur_orig, &eme_hit_record.position );
               float print_rou = genRandFloat(0,1);
               if(print_rou < 0.001f) {
-                LAND_INFO("transmittance: {}", transmittance.x);
+                // LAND_INFO("transmittance: {}", transmittance.x);
               }
               total_transmittance *= transmittance;
               cur_orig = eme_hit_record.position;
