@@ -585,7 +585,7 @@ void App::UpdateImGui() {
       reset_accumulation_ |= ImGui::SliderFloat(
         "water ramp pos 2", &material.water_ramp_pos_2_, 0.0f, 1.0f, "%.3f");
       reset_accumulation_ |= ImGui::SliderFloat(
-        "water bump strength", &material.water_bump_strength_, 0.0f, 1.0f, "%.3f");
+        "water bump strength", &material.water_bump_strength_, 0.0f, 2.0f, "%.3f");
     }
 
 #if !defined(NDEBUG)
