@@ -70,16 +70,19 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
             break;
           }
           // if refraction and has volume
-          // if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
-          //   if( material.has_volume ) {
-          //     ray.type = ginRay::RayType::Volume;
-          //     ray.enterMaterial(&material);
-          //   }
-          // } else {
-          //   LAND_INFO("sample reflect");
-          // }
+          if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
+            if( material.has_volume ) {
+              // LAND_INFO("into the water");
+              ray.type = ginRay::RayType::Volume;
+              ray.enterMaterial(&material);
+            }
+          } else {
+            // LAND_INFO("sample reflect");
+          }
           float weight = sample.w;
           throughput *= weight;
+          ray.direction = direction;
+          ray.origin = origin;
         }
         // Glass or specular material
         else if (material.material_type == MATERIAL_TYPE_GLASS 
@@ -214,6 +217,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
             break;
           }
           if(is_hit_end) {
+            // return glm::vec3{0.0f, 0.0f, 1.0f};
             // do refraction/reflection
             // TODO
             // now in single scatter volume, always do refraction
@@ -221,6 +225,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
               // now only do lambertian
               // return glm::vec3(1.0f, 0.0f, 0.0f);
               // you forgot to sample light!
+              // return glm::vec3(1.0f, 0.0f, 0.0f);
               auto end_material = scene_->GetEntity(end_record.hit_entity_id).GetMaterial();
               auto end_shader_preset = getShaderPreset(end_material.material_type);
               if(end_material.material_type == MATERIAL_TYPE_EMISSION) {
@@ -292,7 +297,9 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
     }
     else if (ray.type == ginRay::RayType::Volume) {
       // break;
-      LAND_INFO("ever here");
+      // LAND_INFO("ever here");
+      // forgot to trace? no need to trace ?
+      // auto t = scene_->TraceRay(origin, direction, 1e-3f, 1e4f, &hit_record);
       auto material = ray.getMaterial();
       auto volume = createVolume(material);
       glm::vec3 Lv;
@@ -331,15 +338,17 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
       // } else {
       //   return glm::vec3(0.0f);
       // }
-      radiance += weight * throughput * Lv;
+      radiance += weight * throughput * Lv; // ? why here?
       throughput *= transmittance;
       if(glm::length(transmittance) < 1e-3f) {
         break;
       }
       if(is_hit_end) {
+        // return glm::vec3(0.0f,0.0f,1.0f);
         // do refraction/reflection
         // TODO
         // now in single scatter volume, always do refraction
+        // LAND_INFO("here");
         auto end_material = scene_->GetEntity(end_record.hit_entity_id).GetMaterial();
         // if( end_record.hit_entity_id != hit_record.hit_entity_id ) {
         //   // now only do lambertian
@@ -370,8 +379,10 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         //   throughput *= end_samp.w;
         // } 
         else {
+          // return glm::vec3(1.0f, 0.0f, 0.0f);
           auto end_shader_preset = getShaderPreset(end_material.material_type);
           sampleLight(scene_, end_record, -wo.direction, end_shader_preset, radiance, throughput);
+          // break;
           // do importance sampling
           glm::vec4 end_samp = importanceSample(end_record, -wo.direction, end_material.material_type);
           wo.direction = glm::vec3(end_samp);
@@ -643,6 +654,11 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
           if(hit_material.has_volume) {
             // exit or enter
             bool in_volume = !( eme_hit_record.front_face ^ hit_material.inverse_normal );
+            if(hit_material.material_type == MATERIAL_TYPE_WATER) {
+              // LAND_INFO("strange");
+              cur_orig = eme_hit_record.position;
+              goto next;
+            }
             if(in_volume) {
               auto volume = createVolume( &hit_material );
               auto transmittance = volume->Transmittance( scene, &cur_orig, &eme_hit_record.position );
@@ -658,6 +674,7 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
               // enter a new volume
               cur_orig = eme_hit_record.position;
             }
+            next:
             success = scene->TraceRay(cur_orig, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
             if(success < 0.0f) {
               break; // sth wrong - break

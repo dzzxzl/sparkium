@@ -197,7 +197,7 @@ glm::vec4 Presets::sampleWater(SceneInfo * scene_info)
     inverter.link(&colorRamp, 0, 0);
     colorRamp.link(&bump, 0, 2);
     bump.link(&roughGlass, 0, 0);
-
+    // setVec3(roughGlass.in_slots_[0], scene_info->hit_record_.normal);
     roughGlass.process();
     glm::vec3 res_dir = getVec3(roughGlass.out_slots_[0]);
     float res_weight = getFloat(roughGlass.out_slots_[1]);
