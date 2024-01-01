@@ -31,7 +31,7 @@
     </model>
 
     
-    <!-- <model type="obj" name="water">
+    <model type="obj" name="water">
         <filename value="../../meshes/water-waterbox.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
@@ -43,21 +43,21 @@
             <inverse_normal value="1"/>
             <shade_smooth value="1"/>
             <albedo_texture value="../../textures/smoothed_moon.png"/>
-            <has_volume value="1"/>
+            <!-- <has_volume value="1"/>
             <volume_scale value="20"/>
             <scatter_albedo value="0.6 0.6 0.6"/>
-            <volume_emission_color value="0.24 0.98 0.539"/>
+            <volume_emission_color value="0.24 0.98 0.539"/> -->
         </material>
-    </model> -->
+    </model>
 
-    <model type="obj" name="temp_volume">
+    <!-- <model type="obj" name="temp_volume">
         <filename value="../../meshes/water-waterbox.obj"/>
         <transform type="world">
             <scale value="99 99 99"/>
             <translation value="0.0 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
-        <material type="volumeA">
+        <material type="water">
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
             <shade_smooth value="1"/>
@@ -66,7 +66,7 @@
             <scatter_albedo value="0.01 0.01 0.01"/>
             <volume_emission_color value="0.24 0.98 0.539"/>
         </material>
-    </model>
+    </model> -->
 
     <model type="obj" name="tilt_tower">
         <filename value="../../meshes/water-tilt-tower.obj"/>

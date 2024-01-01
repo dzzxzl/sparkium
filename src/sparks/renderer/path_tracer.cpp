@@ -70,12 +70,14 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
             break;
           }
           // if refraction and has volume
-          if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
-            if( material.has_volume ) {
-              ray.type = ginRay::RayType::Volume;
-              ray.enterMaterial(&material);
-            }
-          }
+          // if (glm::dot( direction, hit_record.geometry_normal ) < 0.0f) {
+          //   if( material.has_volume ) {
+          //     ray.type = ginRay::RayType::Volume;
+          //     ray.enterMaterial(&material);
+          //   }
+          // } else {
+          //   LAND_INFO("sample reflect");
+          // }
           float weight = sample.w;
           throughput *= weight;
         }
@@ -368,15 +370,30 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         //   throughput *= end_samp.w;
         // } 
         else {
+          auto end_shader_preset = getShaderPreset(end_material.material_type);
+          sampleLight(scene_, end_record, -wo.direction, end_shader_preset, radiance, throughput);
           // do importance sampling
           glm::vec4 end_samp = importanceSample(end_record, -wo.direction, end_material.material_type);
           wo.direction = glm::vec3(end_samp);
           wo.origin = end_record.position;
-          throughput *= end_samp.w;
-          if( glm::dot( wo.direction, end_record.normal ) < 0.0f ) {
-            ray.exitMaterial(material);
-            ray.type = ginRay::RayType::NonCamera;
-          }
+          // if(end_material.material_type == MATERIAL_TYPE_WATER) {
+          //   // do importance sample with node
+          //   glm::vec4 end_samp = importanceSample_use_node( end_record, -wo.direction, end_material.material_type );
+          //   wo.direction = glm::vec3(end_samp);
+          //   wo.origin = end_record.position;
+          //   throughput *= end_samp.w;
+          // } 
+          // else {
+          //   // do importance sampling
+          //   glm::vec4 end_samp = importanceSample(end_record, -wo.direction, end_material.material_type);
+          //   wo.direction = glm::vec3(end_samp);
+          //   wo.origin = end_record.position;
+          //   throughput *= end_samp.w;
+          // }
+          // if( glm::dot( wo.direction, end_record.normal ) < 0.0f ) {
+          //   ray.exitMaterial(material);
+          //   ray.type = ginRay::RayType::NonCamera;
+          // }
         }
       }
       origin = wo.origin;
@@ -421,6 +438,7 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
       float R_0 = (1 - eta) / (1 + eta);
       R_0 = R_0 * R_0;
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
+      // return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
         // return glm::vec3(0.0f);
         return glm::vec4(glm::reflect(-reflection, glass_normal), 1.0f);
@@ -435,6 +453,9 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
       float R_0 = (1 - eta) / (1 + eta);
       R_0 = R_0 * R_0;
       float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
+      LAND_INFO("R: {}", R);
+      // R = 0.5;
+      // return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
       if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
         // return glm::vec3(0.0f);
         return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
@@ -631,7 +652,8 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
               }
               total_transmittance *= transmittance;
               cur_orig = eme_hit_record.position;
-            } else {
+            }
+            else {
               // not in volume 
               // enter a new volume
               cur_orig = eme_hit_record.position;
@@ -640,7 +662,16 @@ void PathTracer::sampleLight(const Scene* scene, HitRecord hit_record, glm::vec3
             if(success < 0.0f) {
               break; // sth wrong - break
             }
-          } else {
+          } 
+          else if (hit_material.material_type == MATERIAL_TYPE_GLASS) {
+            // not a volume, but transmissive
+            cur_orig = eme_hit_record.position;
+            success = scene->TraceRay(cur_orig, eme_direction, 1e-3f, 1e4f, &eme_hit_record);
+            if(success < 0.0f) {
+              break; // sth wrong - break
+            }
+          }
+          else {
             // hit a non-volume object
             total_transmittance *= 0;
             break;

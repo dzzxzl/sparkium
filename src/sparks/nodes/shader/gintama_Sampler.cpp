@@ -107,6 +107,11 @@ void sparks::RoughGlassSampler::process()
             float R_0 = (1 - eta) / (1 + eta);
             R_0 = R_0 * R_0;
             float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
+            R = 0.5;
+                ret_weight = 1.0f;
+                ret_direction = glm::reflect(-reflection, glass_normal);
+                // ret_direction = glm::reflect(-reflection, hit_record.normal);
+                goto push;
             if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
                 // return glm::vec3(0.0f);
                 // return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
