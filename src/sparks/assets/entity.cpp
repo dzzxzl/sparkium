@@ -72,6 +72,7 @@ glm::vec3 Entity::getSamplePoint() const {
 void Entity::resetaabb()
 {
   LAND_INFO("reset aabb");
+  last_transform_ = transform_;
   auto model_aabb = model_->GetAABB(transform_);
   aabb_ = model_aabb;
 }

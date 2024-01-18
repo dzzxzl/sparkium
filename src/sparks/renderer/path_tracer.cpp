@@ -32,6 +32,9 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         // get material
         auto &material =
             scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+            // if(material.material_type == MATERIAL_TYPE_RUST) {
+            //   return glm::vec3(1.0f, 0.0f, 0.0f);
+            // }
         // here implement go pass
         float alpha_pass = genRandFloat(0,1);
         if(alpha_pass > material.alpha) {
@@ -60,12 +63,24 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           sampleLight(scene_, hit_record, -direction, shader_preset, radiance, throughput);
           // break;
           ray.type = ginRay::RayType::NonCamera;
-          glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
+          auto sample_material_type = material.material_type;
+          if(material.material_type == MATERIAL_TYPE_RUST) {
+          }
+          sample_material_type = MATERIAL_TYPE_LAMBERTIAN;
+          glm::vec4 sample = importanceSample(hit_record, -direction, sample_material_type);
+          auto old_direction = direction;
           direction = glm::vec3(sample);
           // LAND_INFO("sample: {}", sample.w);
           float aaa = glm::dot( direction, hit_record.geometry_normal );
           // LAND_INFO("dot: {}", aaa);
-          throughput *= sample.w;
+          if(sample_material_type == MATERIAL_TYPE_LAMBERTIAN) {
+            throughput *= sample.w
+            * surfaceBSDF(scene_, hit_record, {-direction, -old_direction}, shader_preset) 
+              * std::max(glm::dot(direction, hit_record.geometry_normal), 0.0f) 
+              / GINTAMA_P_RR;
+          } else {
+            throughput *= sample.w;
+          }
           if(glm::length(throughput) < 1e-3f) {
             break;
           }
@@ -473,7 +488,7 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         //   throughput *= end_samp.w;
         // } 
         else {
-          LAND_INFO("ha???");
+          // LAND_INFO("ha???");
           // return glm::vec3(1.0f, 0.0f, 0.0f);
           auto end_shader_preset = getShaderPreset(end_material.material_type);
           if(end_shader_preset==ShaderPreset::Emission) {
@@ -701,6 +716,10 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     // ?
   }
 
+  else {
+    return importanceSample(hit_record, reflection, MATERIAL_TYPE_LAMBERTIAN);
+  }
+
 }
 
 glm::vec4 PathTracer::importanceSample_use_node(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const
@@ -759,6 +778,9 @@ glm::vec3 PathTracer::surfaceBSDF(const Scene* scene, HitRecord hit_record, Ligh
     SceneInfo* scene_info = new SceneInfo{scene, hit_record, light_record};
     return Presets::rust(scene_info);
 
+  }
+  else {
+    return glm::vec3(0.0f);
   }
 }
 

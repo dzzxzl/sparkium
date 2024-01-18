@@ -1049,11 +1049,11 @@ bool App::UpdateImGuizmo() {
   ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation,
                                           matrixScale,
                                           reinterpret_cast<float *>(&matrix));
-  if(value_changed) {
-    // recompute aabb
-    LAND_INFO("value changed");
-    scene.GetEntity(selected_entity_id_).resetaabb();
-  }
+  // if(value_changed) {
+  //   // recompute aabb
+  //   LAND_INFO("value changed");
+  //   scene.GetEntity(selected_entity_id_).resetaabb();
+  // }
 
   if (current_guizmo_operation != ImGuizmo::SCALE) {
     if (ImGui::RadioButton("Local", current_guizmo_mode == ImGuizmo::LOCAL)) {

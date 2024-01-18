@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scene>
+
+    <!-- <camera>
+        <transform type="lookat">
+            <eye value="100 100 1000"/>
+            <center value="0.0 0.0 0.0"/>
+            <up value="0.0 1.0 0.0"/>
+        </transform>
+        <fov value="32"/>
+        <speed value="100"/>
+    </camera> -->
+
+    <camera>
+        <transform type="lookat">
+            <eye value="530 645 677"/>
+            <center value="-45 25 25"/>
+            <up value="0.0 1.0 0.0"/>
+        </transform>
+        <fov value="30"/>
+        <speed value="100"/>
+    </camera>
+
+    <model name="Area">
+        <vertex position="408 301 -1009"/>
+        <vertex position="608 301 -809"/>
+        <vertex position="608 -101 -809"/>
+        <vertex position="408 -101 -1009"/>
+
+        <index value="0"/>
+        <index value="1"/>
+        <index value="3"/>
+        <index value="3"/>
+        <index value="1"/>
+        <index value="2"/>
+
+        <material type="emission">
+            <emission value="1.0 1.0 1.0"/>
+            <emission_strength value="100.0"/>
+        </material>
+    </model>
+
+    <model type="obj" name="f-1-roughglass">
+        <filename value="../../meshes/f-1-roughglass-worldmap.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 -7"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="roughGlassNode">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <albedo_texture value="../../textures/earth.jpg"/>
+            <shade_smooth value="1"/>
+        </material>
+    </model>
+
+    <model type="obj" name="f-2-lambertian">
+        <filename value="../../meshes/f-2-lambertian.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="checkerBump">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+        </material>
+    </model>
+
+    <model type="obj" name="f-3-specular">
+        <filename value="../../meshes/f-3-specular.obj"/>
+        <transform type="world">
+            <scale value="100 37.2 100"/>
+            <translation value="0.0 130 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="specular">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+        </material>
+    </model>
+
+    <model type="obj" name="f-4-lambertian">
+        <filename value="../../meshes/f-4-lambertian.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="lambertian">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+        </material>
+    </model>
+
+    <model type="obj" name="f-5-smoke">
+        <filename value="../../meshes/f-5-smoke.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="52 75.6 164"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="volumeA">
+            <albedo value="1.0 1.0 1.0"/>
+            <has_volume value="1"/>
+            <inverse_normal value="1"/>
+            <volume_scale value="10"/>
+        </material>
+    </model>
+
+    <model type="obj" name="Suzzane">
+        <filename value="../../meshes/f-6-rust.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="-116 8.26 374"/>
+            <rotation value="0.0 50.0 0.0"/>
+        </transform>
+        <material type="rust">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+            <albedo_texture value="../../textures/moon.png"/>
+        </material>
+    </model>
+    
+    <model type="obj" name="water">
+        <filename value="../../meshes/f-7-water.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="water">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+            <albedo_texture value="../../textures/smoothed_moon.png"/>
+            <has_volume value="1"/>
+            <volume_scale value="20"/>
+            <scatter_albedo value="0.01 0.01 0.01"/>
+            <volume_emission_color value="0.286 0.831 0.671"/>
+        </material>
+    </model>
+
+</scene>

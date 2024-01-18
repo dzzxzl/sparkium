@@ -247,7 +247,7 @@ glm::vec3 frGlossy(glm::vec3 rho_s, glm::vec3 n, glm::vec3 h, glm::vec3 i, glm::
   float pre_a = (hx_x2 + hy_y2) / (h_n_2);
   float a = 1.0f / ( 4.0f * PI * rough_x * rough_y * sqrt( i_n * o_n ) ) * exp( - ( hx_x2 + hy_y2 ) / ( h_n_2 ) );
   // float a = 1.0f / ( 4.0f * PI * rough_x * rough_y * sqrt( i_n * o_n ) ) ;
-  LAND_INFO("exp term: {} -> {} -> {} -> {}", glm::dot( ex, ex ), rough_x, - ( hx_x2 + hy_y2 ) / ( h_n_2 ), exp( - ( hx_x2 + hy_y2 ) / ( h_n_2 ) ));
+  // LAND_INFO("exp term: {} -> {} -> {} -> {}", glm::dot( ex, ex ), rough_x, - ( hx_x2 + hy_y2 ) / ( h_n_2 ), exp( - ( hx_x2 + hy_y2 ) / ( h_n_2 ) ));
   return rho_s * a;
 }
 

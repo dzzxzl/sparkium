@@ -123,8 +123,9 @@ void GlossyBSDF::process()
 
     glm::vec3 res_color = frGlossy( in_color, normal, half, reflected_, -incident_, rough_x, rough_y, ex, ey );
     // LAND_INFO("in color: {}", in_color.x);
-    // LAND_INFO("res color: {}", res_color.x);
+    // LAND_INFO("res color: {} -> {} -> {}", res_color.x, res_color.y, res_color.z);
     float diffusive_factor = std::max(glm::dot(normal, -incident_), 0.0f) * std::max(glm::dot(normal, reflected_), 0.0f);
+    // LAND_INFO("diffusive factor: {}", diffusive_factor);
 
     if (diffusive_factor == 0.0f) {
         res_color = glm::vec3(0.0f);
@@ -134,6 +135,7 @@ void GlossyBSDF::process()
         res_color *= act_fac / geo_fac;
     }
 
+    // LAND_INFO("res color: {} -> {} -> {}", res_color.x, res_color.y, res_color.z);
     static_cast<Vec3Slot*>(out_slots_[0])->value_ = res_color;
     // push to next node
     if(out_slots_[0]->nextNode_ != nullptr) {

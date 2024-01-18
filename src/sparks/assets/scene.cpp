@@ -217,7 +217,7 @@ float Scene::TraceRay(const glm::vec3 &origin,
     // auto transform = entity.GetTransformMatrix();
     // auto model = entity.GetModel();
 
-    bool aabb_intersect = entity.checkaabb(origin, direction);
+    bool aabb_intersect = const_cast<Entity&>(entity).checkaabb(origin, direction);
     if(!aabb_intersect) {
       continue;
     }

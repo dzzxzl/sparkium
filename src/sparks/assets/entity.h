@@ -37,8 +37,18 @@ class Entity {
   [[nodiscard]] float getSurfaceArea() const;
   [[nodiscard]] glm::vec3 getSamplePoint() const;
   void resetaabb();
-  bool checkaabb(glm::vec3 origin, glm::vec3 direction) const {
+  bool checkaabb(glm::vec3 origin, glm::vec3 direction) {
     // LAND_INFO("checking aabb");
+    auto diff = transform_ - last_transform_;
+    for(int i = 0; i < 4; i++) {
+      for(int j = 0; j < 4; j++) {
+        if(std::abs(diff[i][j]) > 1e-3f) {
+          LAND_INFO("transform changed");
+          resetaabb();
+          break;
+        }
+      }
+    }
     return aabb_.IsIntersect(origin, direction, 1e-3f, 1e4f);
   };
 
@@ -46,6 +56,7 @@ class Entity {
   std::unique_ptr<Model> model_;
   Material material_{};
   glm::mat4 transform_{1.0f};
+  glm::mat4 last_transform_{1.0f};
   std::string name_;
   AxisAlignedBoundingBox aabb_{};
 };

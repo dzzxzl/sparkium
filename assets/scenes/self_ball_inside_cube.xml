@@ -42,7 +42,7 @@
         </material>
     </model>
 
-    <!-- <model type="obj" name="cube">
+    <model type="obj" name="cube">
         <filename value="../../meshes/volume_square.obj"/>
         <transform type="world">
             <scale value="50 50 50"/>
@@ -55,7 +55,7 @@
             <inverse_normal value="1"/>
             <volume_scale value="100"/>
         </material>
-    </model> -->
+    </model>
 
     <model type="obj" name="inside_cube">
         <filename value="../../meshes/volume_square.obj"/>

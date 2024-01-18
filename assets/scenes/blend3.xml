@@ -38,7 +38,7 @@
             <translation value="0.0 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
-        <material type="checkerBump">
+        <material type="checker_A">
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
             <shade_smooth value="1"/>
@@ -66,14 +66,14 @@
             <translation value="0.0 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
-        <material type="glassDispersion">
+        <material type="roughGlassNode">
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
             <shade_smooth value="1"/>
-            <IOR_R value="1.45"/>
+            <!-- <IOR_R value="1.45"/>
             <IOR_G value="1.5"/>
-            <IOR_B value="1.55"/>
-            <!-- <albedo_texture value="../../textures/earth.jpg"/> -->
+            <IOR_B value="1.55"/> -->
+            <albedo_texture value="../../textures/earth.jpg"/>
         </material>
     </model>
 

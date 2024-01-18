@@ -95,8 +95,10 @@ void Bump::process() {
         float diffy = glm::length( (height_dy - height) / dx ) / sqrt(3.0f);
         auto bump_strength = getFloat(in_slots_[0]);
         out_normal = (- diffx * e_u + diffy * e_v) * bump_strength + 1.0f * normal_;
-        LAND_INFO("eu {} -> {} -> {}", e_u[0], e_u[1], e_u[2]);
-        LAND_INFO("ev {} -> {} -> {}", e_v[0], e_v[1], e_v[2]);
+        // out_normal = (- diffx * e_u + diffy * e_v) * 0.0f + 1.0f * normal_;
+        // out_normal = 1.0f * normal_;
+        // LAND_INFO("eu {} -> {} -> {}", e_u[0], e_u[1], e_u[2]);
+        // LAND_INFO("ev {} -> {} -> {}", e_v[0], e_v[1], e_v[2]);
         // out_normal =  1.0f * normal_;
         // out_normal = (- diffx * e_u + diffy * e_v) * 1e-3f + 1.0f * normal_;
         // out_normal =  1.0f * normal_;

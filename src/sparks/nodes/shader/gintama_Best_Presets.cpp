@@ -83,6 +83,7 @@ glm::vec3 Presets::glossy(SceneInfo * scene_info)
 
 glm::vec3 Presets::rust(SceneInfo * scene_info)
 {
+    // LAND_INFO("rust");
     TextureSampleAbsolute texSamp(scene_info);
     GlossyBSDF glossy(scene_info);
     Bump bump(scene_info);
@@ -100,9 +101,15 @@ glm::vec3 Presets::rust(SceneInfo * scene_info)
     // Color color(scene_info->scene_->GetEntity(entity_id).GetMaterial().albedo_color);
     setEnum(bump.in_slots_[1], 2);
     // color.link(&glossy, 0, 0);
+
     bump.link(&glossy, 0, 1);
-    texSamp.link(&colorRamp, 0, 0); 
+    texSamp.link(&colorRamp, 0, 0);
     colorRamp.link(&bump, 0, 2);
+    // setFloat(bump.in_slots_[0], 0.0f);
+
+    // setVec3(glossy.in_slots_[0], glm::vec3(1.0f,0.0f,0.0f));
+    // setVec3(glossy.in_slots_[1], scene_info->hit_record_.geometry_normal);
+
     // setVec3(glossy.in_slots_[0], material.glossy_color_);
     setFloat(glossy.in_slots_[2], material.roughness_x_);
     setFloat(glossy.in_slots_[3], material.roughness_anisotropic_);
@@ -127,6 +134,7 @@ glm::vec3 Presets::rust(SceneInfo * scene_info)
 
     glossy.process();
     glm::vec3 res = getVec3(glossy.out_slots_[0]);
+    // LAND_INFO("result: {} -> {} -> {}", res.x, res.y, res.z);
     return res;
 }
 
