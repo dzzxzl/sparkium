@@ -24,6 +24,12 @@ bool Camera::ImGuiItems() {
   value_changed |= ImGui::SliderFloat("Clamp", &clamp_, 1.0f, 1000000.0f,
                                       "%.2f", ImGuiSliderFlags_Logarithmic);
   ImGui::SliderFloat("Gamma", &gamma_, 0.1f, 10.0f);
+  ImGui::SliderFloat("Shutter Time", &shutter_time_, 0.0f, 1.0f);
+//   value_changed |=
+  ImGui::SliderFloat("Lens Radius", &lens_radius_, 0.0f, 10.0f);
+    // value_changed |=
+  ImGui::SliderFloat("Focus Distance", &focus_distance_, 0.0f, 10000.0f);
+  ImGui::Checkbox("Enable Depth of Field", &enable_depth_of_field_);
   return value_changed;
 }
 
@@ -40,7 +46,8 @@ void Camera::GenerateRay(float aspect,
                          float rand_u,
                          float rand_v,
                          float rand_w,
-                         float rand_r) const {
+                         float rand_r,
+                         float rand_t) const {
   auto pos = (range_high - range_low) * glm::vec2{rand_u, rand_v} + range_low;
   pos = pos * 2.0f - 1.0f;
   pos.y *= -1.0f;
@@ -51,10 +58,41 @@ void Camera::GenerateRay(float aspect,
   float cos_theta = std::cos(theta);
   origin =
       glm::vec3{glm::vec2{sin_theta, cos_theta} * rand_r * aperture_, 0.0f};
+    if(true) {
+        // TODO: if enable motion blur
+        origin.x += shutter_time_ * rand_t;
+    }
+
   direction = glm::normalize(
       glm::vec3{tan_fov * aspect * pos.x, tan_fov * pos.y, -1.0f} *
           focal_length_ -
       origin);
+
+    // if(lens_radius_ > 0.0f) {
+    //     float lens_x = lens_radius_ * cos_theta * sqrt(rand_r);
+    //     float lens_y = lens_radius_ * sin_theta * sqrt(rand_r);
+    //     glm::vec3 lens_offset = glm::vec3{glm::vec2{lens_x, lens_y}, 0.0f};
+    //     origin += lens_offset;
+    //     glm::vec3 focus_point = origin + direction * focus_distance_;
+    //     direction = glm::normalize(focus_point - origin);
+    // }
+
+    // Vec3 focalPoint = camera.position + direction * camera.focalLength;
+
+    // // Generate a jittered sample within the aperture
+    // Vec3 jitteredSample = generateJitteredSample(camera.aperture * 0.5);
+
+    // // Calculate the final ray direction with depth of field
+    // Vec3 finalDirection = direction + right * u + up * v + jitteredSample;
+
+    // // Normalize the direction vector
+    // finalDirection = finalDirection.normalize();
+
+    // // Calculate the final ray origin with depth of field
+    // Vec3 finalOrigin = camera.position + jitteredSample;
+
+    // return (focalPoint - finalOrigin).normalize();
+
 }
 
 Camera::Camera(float fov, float aperture, float focal_length)

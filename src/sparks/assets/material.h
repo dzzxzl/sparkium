@@ -21,6 +21,7 @@ enum MaterialType : int {
   MATERIAL_TYPE_RUST = 12,
   MATERIAL_TYPE_ROUGHGLASS_NODE = 13,
   MATERIAL_TYPE_WATER = 14,
+  MATERIAL_TYPE_GLASS_DISPERSION = 15,
 };
 
 class Scene;
@@ -80,7 +81,14 @@ struct Material {
   float water_ramp_pos_1_{0.1f};
   float water_ramp_pos_2_{0.9f};
   float water_bump_strength_{0.9f};
-  float pad6[1]{};
+  // float pad6[1]{};
+  float extinction_decay_rate_{1.0f};
+
+  // here is chromatic dispersion
+  float IOR_R_{1.5f};
+  float IOR_G_{1.5f};
+  float IOR_B_{1.5f};
+  float pad7[1]{};
 
   Material() = default;
   explicit Material(const glm::vec3 &albedo);

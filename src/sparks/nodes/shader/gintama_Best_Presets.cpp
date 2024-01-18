@@ -11,7 +11,8 @@ glm::vec3 Presets::checkerBump(SceneInfo* scene_info) {
     auto entity_id = scene_info->hit_record_.hit_entity_id;
     Color color(scene_info->scene_->GetEntity(entity_id).GetMaterial().albedo_color);
     DiffuseBSDF diffuse(scene_info);
-    setEnum(bump.in_slots_[1], 0);
+    setEnum(bump.in_slots_[1], 1); // normal
+    // setEnum(bump.in_slots_[1], 0); // height
     checker.link(&bump, 0, 2);
     checker.link(&bump, 1, 3);
     bump.link(&diffuse, 0, 1);

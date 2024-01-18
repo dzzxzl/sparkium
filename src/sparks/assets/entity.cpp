@@ -69,4 +69,12 @@ glm::vec3 Entity::getSamplePoint() const {
   return glm::vec3(transform_ * glm::vec4(sample_point, 1.0f));
 }
 
+void Entity::resetaabb()
+{
+  LAND_INFO("reset aabb");
+  auto model_aabb = model_->GetAABB(transform_);
+  aabb_ = model_aabb;
+}
+
+
 }  // namespace sparks

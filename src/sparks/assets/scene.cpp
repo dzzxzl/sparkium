@@ -104,6 +104,11 @@ const glm::vec3 &Scene::GetCameraPosition() const {
 float &Scene::GetCameraSpeed() {
   return camera_speed_;
 }
+
+float &Scene::GetCameraShutterTime() {
+  return shutter_time_;
+}
+
 const float &Scene::GetCameraSpeed() const {
   return camera_speed_;
 }
@@ -209,10 +214,21 @@ float Scene::TraceRay(const glm::vec3 &origin,
     if (transformed_direction_length < 1e-6) {
       continue;
     }
+    // auto transform = entity.GetTransformMatrix();
+    // auto model = entity.GetModel();
+
+    bool aabb_intersect = entity.checkaabb(origin, direction);
+    if(!aabb_intersect) {
+      continue;
+    }
+
     local_result = entity.GetModel()->TraceRay(
         inv_transform * glm::vec4{origin, 1.0f},
         transformed_direction / transformed_direction_length, t_min,
-        hit_record ? &local_hit_record : nullptr);
+        hit_record ? &local_hit_record : nullptr, transform);
+    // if(local_result < 0.0f) {
+    //   continue;
+    // }
     local_result /= transformed_direction_length;
     if (local_result > t_min && local_result < t_max &&
         (result < 0.0f || local_result < result)) {

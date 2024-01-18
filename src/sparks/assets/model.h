@@ -14,11 +14,12 @@ class Model {
   [[nodiscard]] virtual float TraceRay(const glm::vec3 &origin,
                                        const glm::vec3 &direction,
                                        float t_min,
-                                       HitRecord *hit_record) const = 0;
+                                       HitRecord *hit_record, const glm::mat4& transform) const = 0;
   [[nodiscard]] virtual AxisAlignedBoundingBox GetAABB(
       const glm::mat4 &transform) const = 0;
   [[nodiscard]] virtual std::vector<Vertex> GetVertices() const = 0;
   [[nodiscard]] virtual std::vector<uint32_t> GetIndices() const = 0;
+  virtual void setTransform(const glm::mat4& transform) = 0;
   virtual const char *GetDefaultEntityName();
   virtual glm::vec3 samplePoint() const = 0;
   virtual float getSurfaceArea() const = 0;

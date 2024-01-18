@@ -7,6 +7,7 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
+#include "mesh.h"
 
 namespace sparks {
 
@@ -80,8 +81,18 @@ AxisAlignedBoundingBox Mesh::GetAABB(const glm::mat4 &transform) const {
 float Mesh::TraceRay(const glm::vec3 &origin,
                      const glm::vec3 &direction,
                      float t_min,
-                     HitRecord *hit_record) const {
+                     HitRecord *hit_record, const glm::mat4 &transform) const {
   float result = -1.0f;
+  // first trace intersection of the ray and the bounding box
+  // auto aabb = GetAABB(transform);
+  // bool built_in_intersect = aabb.IsIntersect(origin, direction, -t_min, 1e4f);
+  // bool is_intersect = RayIntersectsBox( origin, direction, {aabb.x_low, aabb.y_low, aabb.z_low}, {aabb.x_high, aabb.y_high, aabb.z_high} );
+  // if( built_in_intersect != is_intersect ) {
+  //   LAND_INFO("Assertion fail.");
+  // }
+  // if (!built_in_intersect) {
+  //   return result;
+  // }
   for (int i = 0; i < indices_.size(); i += 3) {
     int j = i + 1, k = i + 2;
     const auto &v0 = vertices_[indices_[i]];
@@ -112,6 +123,12 @@ float Mesh::TraceRay(const glm::vec3 &origin,
           hit_record->position = position;
           hit_record->geometry_normal = geometry_normal;
           hit_record->normal = v0.normal * w + v1.normal * u + v2.normal * v;
+          // LAND_INFO("v0 tangent: {} {} {}", v0.tangent.x, v0.tangent.y,
+          //           v0.tangent.z);
+          // LAND_INFO("v1 tangent: {} {} {}", v1.tangent.x, v1.tangent.y,
+          //           v1.tangent.z);
+          // LAND_INFO("v2 tangent: {} {} {}", v2.tangent.x, v2.tangent.y,
+          //           v2.tangent.z);
           hit_record->tangent =
               v0.tangent * w + v1.tangent * u + v2.tangent * v;
           hit_record->tex_coord =
@@ -399,5 +416,36 @@ float Mesh::getSurfaceArea() const {
   return recompute_surface_area();
 }
 
+bool Mesh::RayIntersectsBox(const glm::vec3 & rayOrigin, const glm::vec3 & rayDir, const glm::vec3 & boxMin, const glm::vec3 & boxMax) const
+{
+    float tmin = (boxMin.x - rayOrigin.x) / rayDir.x;
+    float tmax = (boxMax.x - rayOrigin.x) / rayDir.x;
+
+    if (tmin > tmax) std::swap(tmin, tmax);
+
+    float tymin = (boxMin.y - rayOrigin.y) / rayDir.y;
+    float tymax = (boxMax.y - rayOrigin.y) / rayDir.y;
+
+    if (tymin > tymax) std::swap(tymin, tymax);
+
+    if ((tmin > tymax) || (tymin > tmax))
+        return false;
+
+    if (tymin > tmin)
+        tmin = tymin;
+
+    if (tymax < tmax)
+        tmax = tymax;
+
+    float tzmin = (boxMin.z - rayOrigin.z) / rayDir.z;
+    float tzmax = (boxMax.z - rayOrigin.z) / rayDir.z;
+
+    if (tzmin > tzmax) std::swap(tzmin, tzmax);
+
+    if ((tmin > tzmax) || (tzmin > tmax))
+        return false;
+
+    return true;
+}
 
 }  // namespace sparks

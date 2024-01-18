@@ -16,7 +16,7 @@ class Mesh : public Model {
   [[nodiscard]] float TraceRay(const glm::vec3 &origin,
                                const glm::vec3 &direction,
                                float t_min,
-                               HitRecord *hit_record) const override;
+                               HitRecord *hit_record, const glm::mat4& transform) const override;
   const char *GetDefaultEntityName() override;
   [[nodiscard]] AxisAlignedBoundingBox GetAABB(
       const glm::mat4 &transform) const override;
@@ -30,10 +30,14 @@ class Mesh : public Model {
   void MergeVertices();
   glm::vec3 samplePoint() const override;
   float getSurfaceArea() const override;
+  void setTransform(const glm::mat4& transform) override {transform_ = transform;}
+  bool RayIntersectsBox(const glm::vec3 &rayOrigin, const glm::vec3 &rayDir,
+                      const glm::vec3 &boxMin, const glm::vec3 &boxMax) const;
 
  protected:
   std::vector<Vertex> vertices_;
   std::vector<uint32_t> indices_;
   float recompute_surface_area() const;
+  glm::mat4 transform_{glm::mat4{1.0f}};
 };
 }  // namespace sparks

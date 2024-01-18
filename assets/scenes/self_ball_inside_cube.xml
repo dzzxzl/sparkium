@@ -26,7 +26,7 @@
 
         <material type="emission">
             <emission value="1.0 1.0 1.0"/>
-            <emission_strength value="50.0"/>
+            <emission_strength value="20.0"/>
         </material>
     </model>
 
@@ -42,31 +42,33 @@
         </material>
     </model>
 
-    <model type="obj" name="cube">
+    <!-- <model type="obj" name="cube">
         <filename value="../../meshes/volume_square.obj"/>
         <transform type="world">
             <scale value="50 50 50"/>
-            <translation value="56.73 0.0 0.0"/>
+            <translation value="-56.73 0.0 0.0"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
         <material type="volumeA">
             <albedo value="1.0 1.0 1.0"/>
             <has_volume value="1"/>
             <inverse_normal value="1"/>
+            <volume_scale value="100"/>
         </material>
-    </model>
+    </model> -->
 
     <model type="obj" name="inside_cube">
         <filename value="../../meshes/volume_square.obj"/>
         <transform type="world">
             <scale value="20 20 20"/>
-            <translation value="-59.87 0.0 0.0"/>
+            <translation value="-53 84 -90"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
         <material type="lambertian">
-            <albedo value="1.0 1.0 1.0"/>
-            <has_volume value="1"/>
+            <albedo value="0.2 0.5 0.2"/>
+            <!-- <has_volume value="1"/> -->
             <inverse_normal value="1"/>
+            <alpha value="1.0"/>
         </material>
     </model>
 

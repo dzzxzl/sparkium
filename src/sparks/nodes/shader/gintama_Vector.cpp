@@ -42,12 +42,29 @@ void Bump::process() {
         normal_ = scene_info_->hit_record_.normal;
     }
     auto reflection_ = scene_info_->light_record_.reflected;
-    glm::vec3 e_v = glm::normalize( glm::cross(tangent_, normal_) );
+    // glm::vec3 e_v = glm::normalize( glm::cross(tangent_, normal_) );
+    glm::vec3 e_v = glm::cross(tangent_, normal_);
+    if(glm::length(e_v) < 1e-3f) {
+        e_v = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), normal_);
+    }
+    if(glm::length(e_v) < 1e-3f) {
+        e_v = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), normal_);
+    }
+    e_v = glm::normalize(e_v);
     glm::vec3 e_u = glm::normalize( glm::cross( normal_, e_v ) );
     glm::vec3 out_normal = normal_;
     if(type == 0) {
         // height displacement
-        out_normal = - grad[0] * e_u + grad[1] * e_v + grad[2] * normal_;
+        out_normal = (- grad[0] * e_u + grad[1] * e_v) * 0.001f + grad[2] * normal_;
+        // out_normal = e_u;
+        // if( glm::length( glm::cross( tangent_, normal_ ) ) < 1e-3f ) {
+        //     LAND_INFO("bad");
+        // } else {
+        //     LAND_INFO("good");
+        // }
+        // LAND_INFO("tangent {} -> {} -> {}", tangent_[0], tangent_[1], tangent_[2]);
+        // LAND_INFO("normal {} -> {} -> {}", normal_[0], normal_[1], normal_[2]);
+        // LAND_INFO("eu {} -> {} -> {}", e_u[0], e_u[1], e_u[2]);
         // out_normal = normal_;
         // out_normal = grad[0] * e_v + grad[1] * e_u + grad[2] * normal_;
         out_normal = glm::normalize(out_normal);
@@ -78,6 +95,9 @@ void Bump::process() {
         float diffy = glm::length( (height_dy - height) / dx ) / sqrt(3.0f);
         auto bump_strength = getFloat(in_slots_[0]);
         out_normal = (- diffx * e_u + diffy * e_v) * bump_strength + 1.0f * normal_;
+        LAND_INFO("eu {} -> {} -> {}", e_u[0], e_u[1], e_u[2]);
+        LAND_INFO("ev {} -> {} -> {}", e_v[0], e_v[1], e_v[2]);
+        // out_normal =  1.0f * normal_;
         // out_normal = (- diffx * e_u + diffy * e_v) * 1e-3f + 1.0f * normal_;
         // out_normal =  1.0f * normal_;
         out_normal = glm::normalize(out_normal);

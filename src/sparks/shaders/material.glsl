@@ -28,7 +28,8 @@ struct Material {
   vec4 pad14;
   // here is water
   vec4 pad15;
-  
+  // here is chromatic dispersion
+  vec4 pad16;
 };
 
 #define MATERIAL_TYPE_LAMBERTIAN 0

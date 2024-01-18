@@ -478,6 +478,8 @@ void App::UpdateImGui() {
     ImGui::SliderFloat(
         "Moving Speed", &scene.GetCameraSpeed(), 0.01f, 1e6f,
         "%.3f", ImGuiSliderFlags_Logarithmic);
+    // ImGui::SliderFloat(
+    //     "Shutter time", &scene.GetCameraShutterTime(), 0.0f, 1.0f, "%.3f");
     reset_accumulation_ |= ImGui::SliderAngle(
         "Pitch", &scene.GetCameraPitchYawRoll().x, -90.0f, 90.0f);
     reset_accumulation_ |= ImGui::SliderAngle(
@@ -502,7 +504,7 @@ void App::UpdateImGui() {
       std::vector<const char *> material_types = {
           "Lambertian", "Specular", "Transmissive", "Principled", "Emission",
           "glass", "checkerBump", "checker_A", "roughGlass", "volumeA", "glossy",
-          "noise_A","rust", "roughGlassNode","water"};
+          "noise_A","rust", "roughGlassNode","water", "glassDispersion"};
       Material &material = scene.GetEntity(selected_entity_id_).GetMaterial();
       reset_accumulation_ |=
           ImGui::Combo("Type", reinterpret_cast<int *>(&material.material_type),
@@ -522,6 +524,13 @@ void App::UpdateImGui() {
           ImGui::SliderFloat("Alpha", &material.alpha, 0.0f, 1.0f, "%.3f");
       reset_accumulation_ |=
           ImGui::SliderFloat("IOR", &material.IOR, 1.0f, 1.6f, "%.3f");
+          reset_accumulation_ |= 
+          ImGui::SliderFloat("IOR_R", &material.IOR_R_, 1.0f, 1.6f, "%.3f");
+          reset_accumulation_ |= 
+          ImGui::SliderFloat("IOR_G", &material.IOR_G_, 1.0f, 1.6f, "%.3f");
+          reset_accumulation_ |= 
+          ImGui::SliderFloat("IOR_B", &material.IOR_B_, 1.0f, 1.6f, "%.3f");
+
       reset_accumulation_ |=
           ImGui::SliderFloat("Roughness", &material.roughness, 0.0f, 1.0f,
                              "%.3f");
@@ -586,6 +595,8 @@ void App::UpdateImGui() {
         "water ramp pos 2", &material.water_ramp_pos_2_, 0.0f, 1.0f, "%.3f");
       reset_accumulation_ |= ImGui::SliderFloat(
         "water bump strength", &material.water_bump_strength_, 0.0f, 2.0f, "%.3f");
+      reset_accumulation_ |= ImGui::SliderFloat(
+        "extinction decay rate", &material.extinction_decay_rate_, 0.0f, 1.0f, "%.3f");
     }
 
 #if !defined(NDEBUG)
@@ -1038,6 +1049,11 @@ bool App::UpdateImGuizmo() {
   ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation,
                                           matrixScale,
                                           reinterpret_cast<float *>(&matrix));
+  if(value_changed) {
+    // recompute aabb
+    LAND_INFO("value changed");
+    scene.GetEntity(selected_entity_id_).resetaabb();
+  }
 
   if (current_guizmo_operation != ImGuizmo::SCALE) {
     if (ImGui::RadioButton("Local", current_guizmo_mode == ImGuizmo::LOCAL)) {

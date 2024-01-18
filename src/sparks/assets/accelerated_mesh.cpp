@@ -16,11 +16,14 @@ AcceleratedMesh::AcceleratedMesh(const std::vector<Vertex> &vertices,
 float AcceleratedMesh::TraceRay(const glm::vec3 &origin,
                                 const glm::vec3 &direction,
                                 float t_min,
-                                HitRecord *hit_record) const {
-  return Mesh::TraceRay(origin, direction, t_min, hit_record);
+                                HitRecord *hit_record, const glm::mat4& transform) const {
+                                  // LAND_INFO("called through accelerated mesh");
+  return Mesh::TraceRay(origin, direction, t_min, hit_record, transform);
 }
 
 void AcceleratedMesh::BuildAccelerationStructure() {
+
+  
 }
 
 }  // namespace sparks

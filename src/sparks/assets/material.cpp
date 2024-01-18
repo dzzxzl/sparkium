@@ -23,7 +23,8 @@ std::unordered_map<std::string, MaterialType> material_name_map{
     {"noise_A", MATERIAL_TYPE_NOISE_A},
     {"rust", MATERIAL_TYPE_RUST},
     {"roughGlassNode", MATERIAL_TYPE_ROUGHGLASS_NODE},
-    {"water", MATERIAL_TYPE_WATER}};
+    {"water", MATERIAL_TYPE_WATER},
+    {"glassDispersion", MATERIAL_TYPE_GLASS_DISPERSION},};
 }
 
 Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
@@ -68,6 +69,21 @@ Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
   child_element = material_element->FirstChildElement("IOR");
   if (child_element) {
     IOR = std::stof(child_element->FindAttribute("value")->Value());
+  }
+  
+  child_element = material_element->FirstChildElement("IOR_R");
+  if (child_element) {
+    IOR_R_ = std::stof(child_element->FindAttribute("value")->Value());
+  }
+
+  child_element = material_element->FirstChildElement("IOR_G");
+  if (child_element) {
+    IOR_G_ = std::stof(child_element->FindAttribute("value")->Value());
+  }
+
+  child_element = material_element->FirstChildElement("IOR_B");
+  if (child_element) {
+    IOR_B_ = std::stof(child_element->FindAttribute("value")->Value());
   }
 
   child_element = material_element->FirstChildElement("inverse_normal");

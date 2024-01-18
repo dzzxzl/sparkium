@@ -23,6 +23,8 @@ class Scene {
   template <class... Args>
   int AddEntity(Args... args) {
     entities_.emplace_back(args...);
+    auto new_entity = &entities_.back();
+    new_entity->resetaabb();
     return int(entities_.size() - 1);
   }
 
@@ -46,6 +48,7 @@ class Scene {
   glm::vec3 &GetCameraPosition();
   [[nodiscard]] const glm::vec3 &GetCameraPosition() const;
   float &GetCameraSpeed();
+  float &GetCameraShutterTime();
   [[nodiscard]] const float &GetCameraSpeed() const;
   glm::vec3 &GetCameraPitchYawRoll();
   [[nodiscard]] const glm::vec3 &GetCameraPitchYawRoll() const;
@@ -89,5 +92,6 @@ class Scene {
   float camera_speed_{3.0f};
   glm::vec3 camera_pitch_yaw_roll_{0.0f, 0.0f, 0.0f};
   Camera camera_{};
+  float shutter_time_{1.0f};
 };
 }  // namespace sparks

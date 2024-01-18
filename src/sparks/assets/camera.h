@@ -16,7 +16,8 @@ class Camera {
                    float rand_u = 0.0f,
                    float rand_v = 0.0f,
                    float rand_w = 0.0f,
-                   float rand_r = 0.0f) const;
+                   float rand_r = 0.0f,
+                   float rand_t = 0.0f) const;
   bool ImGuiItems();
   void UpdateFov(float delta);
   [[nodiscard]] float GetFov() const {
@@ -34,6 +35,9 @@ class Camera {
   [[nodiscard]] float GetGamma() const {
     return gamma_;
   }
+  [[nodiscard]] float GetShutterTime() const {
+    return shutter_time_;
+  }
 
  private:
   float fov_{60.0f};
@@ -41,5 +45,9 @@ class Camera {
   float focal_length_{3.0f};
   float clamp_{100.0f};
   float gamma_{2.2f};
+  float shutter_time_{0.0f};
+  float lens_radius_{10.0f};
+  float focus_distance_{100.0f};
+  bool enable_depth_of_field_{true};
 };
 }  // namespace sparks

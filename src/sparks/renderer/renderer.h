@@ -74,8 +74,8 @@ class Renderer {
   // Scene scene_{"../../scenes/cornell_checker.xml"};
   // Scene scene_{"../../scenes/cornell_checker_with_tex_coord.xml"};
   // Scene scene_{"../../scenes/self_volume_cube.xml"};
-  // Scene scene_{"../../scenes/self_ball_inside_cube.xml"};
-  Scene scene_{"../../scenes/water_scene.xml"};
+  Scene scene_{"../../scenes/self_ball_inside_cube.xml"};
+  // Scene scene_{"../../scenes/water_scene.xml"};
   // Scene scene_{"../../scenes/self_built_checker.xml"};
   // Scene scene_{"../../scenes/glossy_maybe.xml"};
   // Scene scene_{"../../scenes/blend3.xml"};

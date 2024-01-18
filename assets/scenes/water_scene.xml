@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <scene>
 
+    <!-- <camera>
+        <transform type="lookat">
+            <eye value="100 100 1000"/>
+            <center value="0.0 0.0 0.0"/>
+            <up value="0.0 1.0 0.0"/>
+        </transform>
+        <fov value="32"/>
+        <speed value="100"/>
+    </camera> -->
+
     <camera>
         <transform type="lookat">
             <eye value="693 735 496"/>

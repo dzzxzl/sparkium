@@ -36,6 +36,11 @@ bool AxisAlignedBoundingBox::IsIntersect(const glm::vec3 &origin,
       origin.y <= y_high && z_low <= origin.z && origin.z <= z_high) {
     return true;
   }
+  if(x_high - x_low < t_min ||
+     y_high - y_low < t_min ||
+     z_high - z_low < t_min) {
+    return true;
+  }
   float intersection_range_low = t_max * (1.0f + t_min);
   float intersection_range_high = 0.0f;
   float t;
