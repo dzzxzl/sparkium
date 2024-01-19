@@ -79,4 +79,21 @@
         </material>
     </model>
 
+    <!-- <model type="obj" name="Sphere">
+        <filename value="../../meshes/3-sphere.obj"/>
+        <transform type="world">
+            <scale value="100 100 100"/>
+            <translation value="0.0 0.0 0.0"/>
+            <rotation value="0.0 0.0 0.0"/>
+        </transform>
+        <material type="glassDispersion">
+            <albedo value="1.0 1.0 1.0"/>
+            <inverse_normal value="1"/>
+            <shade_smooth value="1"/>
+            <IOR_R value="1.45"/>
+            <IOR_G value="1.5"/>
+            <IOR_B value="1.55"/>
+        </material>
+    </model> -->
+
 </scene>

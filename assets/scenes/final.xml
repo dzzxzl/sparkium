@@ -40,7 +40,7 @@
         </material>
     </model>
 
-    <!-- <model type="obj" name="f-1-roughglass">
+    <model type="obj" name="f-1-roughglass">
         <filename value="../../meshes/3-sphere.obj"/>
         <transform type="world">
             <scale value=" 80 80 80"/>
@@ -81,7 +81,7 @@
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
         </material>
-    </model> -->
+    </model>
 
     <model type="obj" name="f-4-lambertian">
         <filename value="../../meshes/f-4-lambertian.obj"/>
@@ -96,7 +96,7 @@
         </material>
     </model>
 
-    <!-- <model type="obj" name="f-5-smoke">
+    <model type="obj" name="f-5-smoke">
         <filename value="../../meshes/f-5-smoke.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
@@ -125,7 +125,7 @@
             <shade_smooth value="1"/>
             <albedo_texture value="../../textures/moon.png"/>
         </material>
-    </model> -->
+    </model>
     
     <model type="obj" name="water">
         <filename value="../../meshes/f-7-water.obj"/>
@@ -137,7 +137,6 @@
         <material type="water">
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
-            <shade_smooth value="1"/>
             <albedo_texture value="../../textures/smoothed_moon.png"/>
             <has_volume value="1"/>
             <volume_scale value="20"/>

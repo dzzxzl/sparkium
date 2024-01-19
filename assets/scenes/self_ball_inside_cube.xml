@@ -53,7 +53,7 @@
             <albedo value="1.0 1.0 1.0"/>
             <has_volume value="1"/>
             <inverse_normal value="1"/>
-            <volume_scale value="100"/>
+            <volume_scale value="20"/>
         </material>
     </model>
 

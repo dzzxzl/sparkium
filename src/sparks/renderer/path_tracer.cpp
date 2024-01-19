@@ -126,11 +126,12 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
         }
         else if(material.material_type == MATERIAL_TYPE_GLASS_DISPERSION) {
           origin = hit_record.position;
-          glm::vec4 sample = importanceSample(hit_record, -direction, material.material_type);
+          glm::vec4 sample = importanceSampleChannel(hit_record, -direction, material.material_type, throughput);
           float weight = sample.w;
           glm::vec3 real_weight(1.0f, 0.0f, 0.0f);
+          LAND_INFO("weight: {}", weight);
           if(weight < 1.0f) {
-            
+            // return glm::vec3(1.0f,0.0f,0.0f);
           } else if(weight < 2.0f) {
             real_weight = glm::vec3(0.0f, 1.0f, 0.0f);
           } else {
@@ -719,6 +720,83 @@ glm::vec4 PathTracer::importanceSample(HitRecord hit_record, glm::vec3 reflectio
     // LAND_INFO("dot: {}", bbb);
     return glm::vec4(incident_, weight);
     // ?
+  }
+
+  else {
+    return importanceSample(hit_record, reflection, MATERIAL_TYPE_LAMBERTIAN);
+  }
+
+}
+
+glm::vec4 PathTracer::importanceSampleChannel(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type, glm::vec3 channel) const {
+
+  auto material = scene_->GetEntity(hit_record.hit_entity_id).GetMaterial();
+
+
+  if( material_type == MATERIAL_TYPE_GLASS_DISPERSION ) {
+    auto IOR = material.IOR;
+    float weight = 0.5f;
+    float choose_channel = genRandFloat(0,1) * (channel.x + channel.y + channel.z);
+    if(choose_channel < channel.x) {
+      IOR = material.IOR_R_;
+    } else if(choose_channel < channel.x + channel.y) {
+      IOR = material.IOR_G_;
+      weight = 1.5f;
+    } else {
+      IOR = material.IOR_B_;
+      weight = 2.5f;
+    }
+    if(channel.x == 0.0f && channel.y == 0.0f && channel.z == 0.0f) {
+      choose_channel = genRandFloat(0,1) * 3;
+      if(choose_channel < 1) {
+        IOR = material.IOR_R_;
+      } else if(choose_channel < 2) {
+        IOR = material.IOR_G_;
+        weight = 1.5f;
+      } else {
+        IOR = material.IOR_B_;
+        weight = 2.5f;
+      }
+    }
+    bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
+    glm::vec3 glass_normal = hit_record.geometry_normal;
+    if(material.shade_smooth){
+      glass_normal = hit_record.normal;
+    }
+    // bool in_glass = glm::dot(-reflection, hit_record.geometry_normal) > 0.0f;
+    if(in_glass) {
+      float cos_theta = glm::dot(reflection, glass_normal);
+      float eta = IOR;
+      float R_0 = (1 - eta) / (1 + eta);
+      R_0 = R_0 * R_0;
+      float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
+      // return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
+      if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
+        // return glm::vec3(0.0f);
+        return glm::vec4(glm::reflect(-reflection, glass_normal), weight);
+      }
+      if(genRandFloat(0,1) < R) {
+        return glm::vec4(glm::reflect(-reflection, glass_normal),weight);
+      }
+      return glm::vec4(glm::refract(-reflection, glass_normal, IOR),weight);
+    } else {
+      float cos_theta = glm::dot(reflection, glass_normal);
+      float eta = 1.0f / IOR;
+      float R_0 = (1 - eta) / (1 + eta);
+      R_0 = R_0 * R_0;
+      float R = R_0 + (1 - R_0) * glm::pow(1 - cos_theta, 5);
+      // LAND_INFO("R: {}", R);
+      // R = 0.5;
+      // return glm::vec4(glm::reflect(-reflection, glass_normal),1.0f);
+      if( 1 - eta * eta * (1 - cos_theta * cos_theta) < 0.0f ) {
+        // return glm::vec3(0.0f);
+        return glm::vec4(glm::reflect(-reflection, glass_normal),weight);
+      }
+      if(genRandFloat(0,1) < R) {
+        return glm::vec4(glm::reflect(-reflection, glass_normal),weight);
+      }
+      return glm::vec4(glm::refract(-reflection, glass_normal, 1.0f / IOR),weight);
+    }
   }
 
   else {

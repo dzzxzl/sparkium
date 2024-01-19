@@ -36,6 +36,7 @@ class PathTracer {
                                     int y,
                                     int sample) const;
   [[nodiscard]] glm::vec4 importanceSample(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const;
+  [[nodiscard]] glm::vec4 importanceSampleChannel(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type, glm::vec3 channel) const;
   [[nodiscard]] glm::vec4 importanceSample_use_node(HitRecord hit_record, glm::vec3 reflection, MaterialType material_type) const;
   [[nodiscard]] glm::vec3 surfaceBSDF(const Scene* scene, HitRecord hit_record, LightRecord light_record, ShaderPreset shader_preset) const;
   void gopass(const Scene* scene, HitRecord hit_record, glm::vec3 &direction, glm::vec3 &origin) const;
