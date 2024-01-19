@@ -40,16 +40,18 @@
         </material>
     </model>
 
-    <model type="obj" name="f-1-roughglass">
-        <filename value="../../meshes/f-1-roughglass-worldmap.obj"/>
+    <!-- <model type="obj" name="f-1-roughglass">
+        <filename value="../../meshes/3-sphere.obj"/>
         <transform type="world">
-            <scale value="100 100 100"/>
-            <translation value="0.0 0.0 -7"/>
+            <scale value=" 80 80 80"/>
+            <translation value="-53 216 354"/>
             <rotation value="0.0 0.0 0.0"/>
         </transform>
         <material type="roughGlassNode">
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
+            <inverter_invert value="0"/>
+            <rough_glass_ramp_pos value="0.401"/>
             <albedo_texture value="../../textures/earth.jpg"/>
             <shade_smooth value="1"/>
         </material>
@@ -79,7 +81,7 @@
             <albedo value="1.0 1.0 1.0"/>
             <inverse_normal value="1"/>
         </material>
-    </model>
+    </model> -->
 
     <model type="obj" name="f-4-lambertian">
         <filename value="../../meshes/f-4-lambertian.obj"/>
@@ -94,7 +96,7 @@
         </material>
     </model>
 
-    <model type="obj" name="f-5-smoke">
+    <!-- <model type="obj" name="f-5-smoke">
         <filename value="../../meshes/f-5-smoke.obj"/>
         <transform type="world">
             <scale value="100 100 100"/>
@@ -106,6 +108,7 @@
             <has_volume value="1"/>
             <inverse_normal value="1"/>
             <volume_scale value="10"/>
+            <max_extinction value="0.4"/>
         </material>
     </model>
 
@@ -122,7 +125,7 @@
             <shade_smooth value="1"/>
             <albedo_texture value="../../textures/moon.png"/>
         </material>
-    </model>
+    </model> -->
     
     <model type="obj" name="water">
         <filename value="../../meshes/f-7-water.obj"/>

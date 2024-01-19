@@ -78,8 +78,8 @@ class Renderer {
   // Scene scene_{"../../scenes/water_scene.xml"};
   // Scene scene_{"../../scenes/self_built_checker.xml"};
   // Scene scene_{"../../scenes/glossy_maybe.xml"};
-  // Scene scene_{"../../scenes/final.xml"};
-  Scene scene_{"../../scenes/blend3.xml"};
+  Scene scene_{"../../scenes/final.xml"};
+  // Scene scene_{"../../scenes/blend3.xml"};
   // Scene scene_{"../../scenes/self_noise.xml"};
   // Scene scene_{"../../scenes/cornell.xml"};
   // Scene scene_{"../../scenes/cornell_glass.xml"};

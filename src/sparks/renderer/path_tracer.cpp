@@ -163,6 +163,11 @@ glm::vec3 PathTracer::SampleRay(glm::vec3 origin,
           origin = hit_record.position;
           glm::vec4 sample = importanceSample_use_node(hit_record, -direction, material.material_type);
           direction = glm::vec3(sample);
+          // if(sample.w < 0.0f) {
+          //   return glm::vec3(1.0f,0.0f,0.0f);
+          // } else {
+          //   return glm::vec3(0.0f,1.0f,0.0f);
+          // }
           if(glm::length(direction) < 1e-3f) {
             break;
           }

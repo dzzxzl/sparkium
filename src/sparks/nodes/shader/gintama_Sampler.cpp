@@ -74,9 +74,9 @@ void sparks::RoughGlassSampler::process()
         auto IOR = material.IOR;
         bool in_glass = ! ( hit_record.front_face ^ material.inverse_normal );
         glm::vec3 glass_normal = normal;
-        // if(material.shade_smooth){
-        // glass_normal = hit_record.normal;
-        // }
+        if(material.shade_smooth){
+        glass_normal = hit_record.normal;
+        }
         // bool in_glass = glm::dot(-reflection, hit_record.geometry_normal) > 0.0f;
         if(in_glass) {
             float cos_theta = glm::dot(reflection, glass_normal);
@@ -167,6 +167,11 @@ void sparks::RoughGlassSampler::process()
         goto push;
     }
     push:
+
+    // if(roughness < 1e-3f) {
+    //     ret_weight = -1.0f;
+    // }
+
     // push to next node
     static_cast<Vec3Slot*>(out_slots_[ slotID(OutSlotName::Direction) ])->value_ = ret_direction;
     static_cast<FloatSlot*>(out_slots_[ slotID(OutSlotName::Weight) ])->value_ = ret_weight;

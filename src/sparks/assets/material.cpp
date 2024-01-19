@@ -86,6 +86,25 @@ Material::Material(Scene *scene, const tinyxml2::XMLElement *material_element)
     IOR_B_ = std::stof(child_element->FindAttribute("value")->Value());
   }
 
+  child_element = material_element->FirstChildElement("inverter_invert");
+  if (child_element) {
+    inverter_invert =
+        std::stoi(child_element->FindAttribute("value")->Value()) != 0;
+  }
+
+  child_element = material_element->FirstChildElement("rough_glass_ramp_pos");
+  if (child_element) {
+    rough_glass_ramp_pos_ =
+        std::stof(child_element->FindAttribute("value")->Value());
+  }
+
+  child_element = material_element->FirstChildElement("max_extinction");
+  if (child_element) {
+    max_extinction =
+        std::stof(child_element->FindAttribute("value")->Value());
+  }
+
+
   child_element = material_element->FirstChildElement("inverse_normal");
   if (child_element) {
     inverse_normal =

@@ -73,6 +73,8 @@
             <!-- <IOR_R value="1.45"/>
             <IOR_G value="1.5"/>
             <IOR_B value="1.55"/> -->
+            <inverter_invert value="0"/>
+            <rough_glass_ramp_pos value="0.401"/>
             <albedo_texture value="../../textures/earth.jpg"/>
         </material>
     </model>
